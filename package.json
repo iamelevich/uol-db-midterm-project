@@ -1,0 +1,50 @@
+{
+  "name": "cm2040_ilya_amelevich_submission",
+  "version": "1.0.0",
+  "description": "A submission for the mid-term assignment",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build-db": "cat db_schema.sql | sqlite3 database.db #build anew database from the sql file",
+    "clean-db": "rm database.db #remove the old database",
+    "start": "node index.js",
+    "prepare": "husky install",
+    "start:dev": "nodemon index.js | pino-pretty",
+    "watch:css": "tailwindcss -i ./public/source.css -o ./public/dist.css --watch"
+  },
+  "author": "Ilya Amelevich",
+  "license": "ISC",
+  "dependencies": {
+    "ejs": "~3.1.8",
+    "express": "~4.18.2",
+    "express-ejs-layouts": "^2.5.1",
+    "express-validator": "^6.14.2",
+    "pino": "^8.8.0",
+    "pino-http": "^8.3.0",
+    "promised-sqlite3": "^1.2.0"
+  },
+  "engines": {
+    "npm": ">=9.2.0",
+    "node": ">=18.12.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.30.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-html": "^7.1.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-jsdoc": "^39.6.4",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-sql": "^2.3.2",
+    "husky": "^8.0.2",
+    "lint-staged": "^13.1.0",
+    "nodemon": "^2.0.20",
+    "pino-pretty": "^9.1.1",
+    "prettier": "2.8.1",
+    "tailwindcss": "^3.2.4"
+  },
+  "lint-staged": {
+    "**/*": "prettier --write --ignore-unknown"
+  }
+}

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%- title %></title>
+    <link rel="stylesheet" href="/dist.css" />
+    <script src="https://unpkg.com/eva-icons"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  </head>
+  <body x-data :class="$store.darkMode.on && 'dark bg-slate-700'">
+    <div class="container mx-auto dark:text-white dark:fill-white">
+      <header class="py-4 flex">
+        <a class="flex-none text-2xl uppercase" href="/">My blog</a>
+        <span class="grow pl-1 text-sm text-slate-500 dark:text-slate-300">by Ilya Amelevich</span>
+        <button x-data @click="$store.darkMode.toggle()" class="flex-none">
+          <i x-show="!$store.darkMode.on" data-eva="moon-outline"></i>
+          <i x-show="$store.darkMode.on" data-eva="sun-outline"></i>
+        </button>
+      </header>
+      <main><%- body %></main>
+    </div>
+
+    <script>
+      // Need to setup icons (replaces all <i> with svg)
+      eva.replace();
+    </script>
+    <script>
+      // Detect is dart theme on
+      const darkThemeMq = window.matchMedia('(prefers-color-scheme: dark)');
+      document.addEventListener('alpine:init', () => {
+        // Add store to change dark theme
+        Alpine.store('darkMode', {
+          on: darkThemeMq.matches,
+          toggle() {
+            this.on = !this.on;
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

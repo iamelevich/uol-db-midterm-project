@@ -3,5 +3,6 @@ module.exports = {
   endOfLine: 'auto',
   singleQuote: true,
   trailingComma: 'none',
-  bracketSpacing: true
+  bracketSpacing: true,
+  plugins: [require('prettier-plugin-tailwindcss'), require('prettier-plugin-packagejson')]
 };

@@ -3,8 +3,8 @@ module.exports = {
     browser: true,
     es2021: true
   },
-  extends: ['airbnb-base', 'plugin:jsdoc/recommended', 'prettier'],
-  plugins: ['html', 'jsdoc', 'sql', 'prettier'],
+  extends: ['airbnb-base', 'plugin:jsdoc/recommended', 'plugin:tailwindcss/recommended', 'prettier'],
+  plugins: ['html', 'jsdoc', 'sql', 'prettier', 'tailwindcss'],
   settings: {
     'html/html-extensions': ['.html', '.ejs']
   },

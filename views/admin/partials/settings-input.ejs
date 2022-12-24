@@ -1,0 +1,68 @@
+<div
+  x-id="['text-input']"
+  x-data="{
+    changed: false,
+    submitting: false,
+    value: '<%- value %>',
+    name: '<%- name %>',
+    errorMessage: undefined,
+    async submit() {
+      if (this.submitting) {
+        return;
+      }
+      this.submitting = true;
+      try {
+        const response = await fetch(`/api/blog-setting/${this.name}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            setting_value: this.value
+          })
+        });
+        const responseBody = await response.json();
+        if (response.status !== 200) {
+          let message = responseBody.message;
+          if (responseBody.errors && responseBody.errors.length) {
+            message = responseBody.errors.map(responseError => {
+              return responseError.msg;
+            }).join('. ');
+          }
+          throw new Error(message || 'Something goes wrong. Please try again later');
+        }
+        this.changed = false;
+      } catch (error) {
+        this.errorMessage = error.message;
+      } finally {
+        this.submitting = false;
+      }
+    }
+  }"
+  class="my-5"
+>
+  <label :for="$id('text-input')" class="text-gray-700 dark:text-slate-300"><%- label %></label>
+  <div class="flex w-full">
+    <input
+      type="text"
+      :id="$id('text-input')"
+      @input="changed = true; errorMessage = undefined"
+      :disabled="submitting"
+      class="mt-0 block w-full grow border-0 border-b-2 border-slate-200 px-0.5 focus:border-black focus:ring-0 dark:bg-slate-700 dark:focus:border-white"
+      placeholder="<%- label %>"
+      x-model="value"
+    />
+    <button
+      x-cloak
+      x-show="changed"
+      x-transition
+      @click="submit"
+      x-bind:class="submitting ? 'bg-gray-600 dark:bg-gray-400' : 'bg-green-500 hover:bg-green-600 dark:bg-cyan-600 dark:hover:bg-cyan-500'"
+      class="ml-2 flex-none rounded-md px-2"
+    >
+      <i x-show="!submitting" data-eva="save-outline"></i>
+      <i class="animate-spin" x-show="submitting" data-eva="loader-outline"></i>
+    </button>
+  </div>
+  <span x-text="errorMessage" class="text-red-500 dark:text-red-300"></span>
+</div>

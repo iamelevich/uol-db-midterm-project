@@ -1,3 +1,6 @@
-<h1 class="text-2xl text-center">Blog settings</h1>
-<p class="text-slate-500 dark:text-slate-300 text-center">There you can update block settings.</p>
+<h1 class="text-center text-2xl">Blog settings</h1>
+<p class="text-center text-slate-500 dark:text-slate-300">There you can update block settings.</p>
+<%- include('./partials/settings-input', { label: 'Blog title', value: settings.blog_title, name: 'blog_title'}); %>
+<%- include('./partials/settings-input', { label: 'Blog subtitle', value: settings.blog_subtitle, name: 'blog_subtitle'}); %>
+<%- include('./partials/settings-input', { label: 'Author name', value: settings.blog_author, name: 'blog_author'}); %>
 

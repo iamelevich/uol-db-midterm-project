@@ -1,6 +1,7 @@
 import express from 'express';
 import expressLayouts from 'express-ejs-layouts';
 import { pinoHttp } from 'pino-http';
+import bodyParser from 'body-parser';
 import blogSettingsRouter from './routes/blogSettings.mjs';
 import adminRouter from './routes/admin.mjs';
 import userRouter from './routes/user.mjs';
@@ -17,6 +18,9 @@ app.use(express.static('public'));
 app.use(expressLayouts);
 app.set('layout', './layouts/full-width');
 app.set('view engine', 'ejs');
+
+// parse application/json
+app.use(bodyParser.json());
 
 app.use(blogSettingsRouter);
 app.use(adminRouter);

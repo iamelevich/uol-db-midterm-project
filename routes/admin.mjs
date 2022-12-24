@@ -8,7 +8,7 @@ const router = express.Router();
  */
 router.get('/admin/settings', async (req, res) => {
   const settings = await blogSettingsRepository.getAllMap();
-  res.render('admin/settings', { title: 'Home', settings });
+  res.render('admin/settings', { title: 'Settings', settings });
 });
 
 export default router;

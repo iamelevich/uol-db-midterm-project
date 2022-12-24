@@ -4,7 +4,6 @@ eva.replace();
 // Detect is dart theme on
 const darkThemeMq = window.matchMedia('(prefers-color-scheme: dark)');
 document.addEventListener('alpine:init', () => {
-  console.log(1);
   // Add store to change dark theme
   Alpine.store('darkMode', {
     on: Alpine.$persist(darkThemeMq.matches).as('darkMode_on'),

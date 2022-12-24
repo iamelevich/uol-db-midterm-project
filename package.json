@@ -2,7 +2,7 @@
   "name": "cm2040_ilya_amelevich_submission",
   "version": "1.0.0",
   "description": "A submission for the mid-term assignment",
-  "main": "index.js",
+  "main": "index.mjs",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -10,7 +10,7 @@
     "clean-db": "rm database.db #remove the old database",
     "start": "node index.js",
     "prepare": "husky install",
-    "start:dev": "nodemon index.js | pino-pretty",
+    "start:dev": "nodemon livereload.mjs -e ejs,css,mjs,js,json | pino-pretty",
     "watch:css": "tailwindcss -i ./public/source.css -o ./public/dist.css --watch"
   },
   "author": "Ilya Amelevich",
@@ -29,6 +29,9 @@
     "node": ">=18.12.0"
   },
   "devDependencies": {
+    "@tailwindcss/forms": "^0.5.3",
+    "@tailwindcss/typography": "^0.5.8",
+    "connect-livereload": "^0.6.1",
     "eslint": "^8.30.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-prettier": "^8.5.0",
@@ -39,6 +42,7 @@
     "eslint-plugin-sql": "^2.3.2",
     "husky": "^8.0.2",
     "lint-staged": "^13.1.0",
+    "livereload": "^0.9.3",
     "nodemon": "^2.0.20",
     "pino-pretty": "^9.1.1",
     "prettier": "2.8.1",

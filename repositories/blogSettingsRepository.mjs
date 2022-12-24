@@ -21,6 +21,18 @@ class BlogSettingsRepository {
   }
 
   /**
+   * @description Returns all blogSettings entities from DB as hash map
+   * @returns {Promise<Record<string, string>>}
+   */
+  async getAllMap() {
+    const settings = await this.getAll();
+    return settings.reduce((map, setting) => {
+      map[setting.setting_name] = setting.setting_value;
+      return map;
+    }, {});
+  }
+
+  /**
    * Returns sepecific setting by name
    * @param {string} name - setting_name
    * @returns {Promise<BlogSetting | undefined>}

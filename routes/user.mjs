@@ -1,5 +1,6 @@
 import express from 'express';
 import blogSettingsRepository from '../repositories/blogSettingsRepository.mjs';
+import articlesRepository from '../repositories/articlesRepository.mjs';
 
 const router = express.Router();
 
@@ -8,7 +9,8 @@ const router = express.Router();
  */
 router.get('/', async (req, res) => {
   const settings = await blogSettingsRepository.getAllMap();
-  res.render('home', { title: 'Home', settings });
+  const articles = await articlesRepository.getPublished();
+  res.render('home', { title: 'Home', settings, articles });
 });
 
 export default router;

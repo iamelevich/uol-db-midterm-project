@@ -1,1 +1,21 @@
-Hi to you
+<% for(const article of articles) {%>
+<div class="my-6">
+  <h1 class="text-2xl text-center"><%- article.article_title %></h1>
+  <h2 class="text-lg text-center"><%- article.article_subtitle %></h2>
+  <div class="flex py-2">
+    <div class="flex-none text-sm text-slate-500 dark:text-slate-300">
+      Published: <span><%- (new Date(article.article_published_at)).toLocaleString(); %></span>
+    </div>
+    <span class="grow"></span>
+    <div class="flex-none text-xs">
+      <% for(const tag of article.tags) {%>
+        <span class="py-0.5 px-1 bg-slate-300 dark:bg-slate-500 rounded-md"><%- tag %></span>
+      <% } %>
+    </div>
+  </div>
+  <div class="prose lg:prose-xl text-center dark:prose-invert">
+    <%- article.article_text.substring(0, article.article_text.indexOf('</p>') + 4) %>
+  </div>
+  <a class="block pt-2 pb-4 w-full text-center gradient-link border-b-2" href="/article/<%- article.article_url %>">Read more</a>
+</div>
+<% } %>

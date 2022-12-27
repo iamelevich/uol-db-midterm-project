@@ -9,8 +9,8 @@ const router = express.Router();
  */
 router.get('/', async (req, res) => {
   const settings = await blogSettingsRepository.getAllMap();
-  const articles = await articlesRepository.getPublished();
-  res.render('home', { title: 'Home', settings, articles });
+  const articlesData = await articlesRepository.getPublished();
+  res.render('home', { title: 'Home', settings, ...articlesData });
 });
 
 export default router;

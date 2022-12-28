@@ -154,7 +154,7 @@
   <!-- Pagination -->
   <div x-cloak x-show="!this.isLoading" class="flex items-center">
     <label :for="$id('page')" class="mr-1">Page: </label>
-    <select class="rounded-lg" name="page" :id="$id('page')" @change="getArticles()" x-model="page">
+    <select class="rounded-lg dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500" name="page" :id="$id('page')" @change="getArticles()" x-model="page">
       <template x-for="availablePage in pages" :key="availablePage">
         <option :value="availablePage" x-text="availablePage"></option>
       </template>
@@ -162,7 +162,7 @@
     <div class="grow"></div>
     <label :for="$id('per-page')" class="mr-1">Per page: </label>
     <select
-      class="rounded-lg"
+      class="rounded-lg dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
       name="perPage"
       :id="$id('per-page')"
       @change="page = 1; getArticles()"
@@ -173,6 +173,14 @@
       <option value="50">50</option>
       <option value="100">100</option>
     </select>
+    <a
+      href="/admin/draft"
+      class="ml-2 flex rounded-lg bg-green-300 p-2 hover:bg-green-400 dark:bg-green-600 dark:hover:bg-green-500"
+    >
+      Draft
+      <!-- prettier-ignore -->
+      <%- include('../partials/icons/plus', { className: 'h-6 w-6' }); %>
+    </a>
   </div>
   <!-- Articles table -->
   <table x-cloak x-show="!this.isLoading" class="my-4 w-full">

@@ -9,7 +9,7 @@
     <span class="grow"></span>
     <div class="flex-none text-xs">
       <% for (const tag of article.tags) { %>
-    <span class="mx-0.5 rounded-md bg-slate-300 py-0.5 px-1 dark:bg-slate-500"><%- tag %></span>
+      <span class="mx-0.5 rounded-md bg-slate-300 py-0.5 px-1 dark:bg-slate-500"><%- tag %></span>
       <% } %>
     </div>
   </div>
@@ -25,7 +25,7 @@
       :id="$id('comment')"
       :disabled="submitting"
       @input="errorMessage = undefined"
-      class="w-full rounded-lg dark:border-gray-300 dark:bg-slate-500 dark:focus:ring-gray-300"
+      class="w-full rounded-lg dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
       x-bind:class="errorMessage ? 'text-red-500 dark:text-red-300 border-red-500 dark:border-red-300' : ''"
       name="comment"
       rows="5"
@@ -51,10 +51,7 @@
       <p class="prose dark:prose-invert" x-html="comment.comment_text.replace(/\\n/g, '<br>')"></p>
     </div>
   </template>
-  <div
-    x-show="isLoading"
-    class="flex h-64 w-full items-center justify-center"
-  >
+  <div x-show="isLoading" class="flex h-64 w-full items-center justify-center">
     <!-- prettier-ignore -->
     <%- include('./partials/loading'); %>
   </div>

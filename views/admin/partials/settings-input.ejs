@@ -29,7 +29,7 @@
               return responseError.msg;
             }).join('. ');
           }
-          throw new Error(message || 'Something goes wrong. Please try again later');
+          throw new Error(message || 'Something went wrong. Please try again later');
         }
         this.changed = false;
       } catch (error) {

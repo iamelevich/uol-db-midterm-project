@@ -1,7 +1,9 @@
 <div x-data="infiniteScrollPublishedArticles()" x-init="init()">
   <template x-for="article in items" :key="article.article_id">
     <div class="my-6">
-      <h1 class="text-center text-2xl" x-text="article.article_title"></h1>
+      <h1 class="text-center text-2xl">
+        <a class="gradient-link" :href="'/article/'+article.article_url" x-text="article.article_title"></a>
+      </h1>
       <h2 class="text-center text-lg" x-text="article.article_subtitle"></h2>
       <div class="flex py-2">
         <div class="flex-none text-sm text-slate-500 dark:text-slate-300">
@@ -10,7 +12,7 @@
         <span class="grow"></span>
         <div class="flex-none text-xs">
           <template x-for="tag in article.tags">
-            <span class="rounded-md bg-slate-300 py-0.5 px-1 dark:bg-slate-500" x-text="tag"></span>
+            <span class="mx-0.5 rounded-md bg-slate-300 py-0.5 px-1 dark:bg-slate-500" x-text="tag"></span>
           </template>
         </div>
       </div>
@@ -29,19 +31,7 @@
     class="flex h-64 w-full items-center justify-center text-purple-600 dark:text-purple-400"
     id="infinite-scroll-trigger"
   >
-    <svg
-      class="-ml-1 mr-3 h-5 w-5 animate-spin"
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-    >
-      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-      <path
-        class="opacity-75"
-        fill="currentColor"
-        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-      ></path>
-    </svg>
-    <span>Loading...</span>
+    <!-- prettier-ignore -->
+    <%- include('./partials/loading'); %>
   </div>
 </div>

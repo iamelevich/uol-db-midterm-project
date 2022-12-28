@@ -60,7 +60,7 @@ class ArticlesRepository {
     const count = await this.#db.get(this.#generateCountArticlesSql());
 
     return {
-      articles: this.#transformRawToObject(articlesRaw),
+      articles: this.#transformRawsToObject(articlesRaw),
       count: count.articlesCount
     };
   }
@@ -92,9 +92,45 @@ class ArticlesRepository {
     );
 
     return {
-      articles: this.#transformRawToObject(articlesRaw),
+      articles: this.#transformRawsToObject(articlesRaw),
       count: count.articlesCount
     };
+  }
+
+  /**
+   *
+   * @param {string} slug - Url of the article
+   * @returns {Promise<Article> | undefined} If article not found - return undefined, otherwise article object
+   */
+  async getBySlug(slug) {
+    const articleRaw = await this.#db.get(
+      `SELECT
+      a.article_id,
+      a.article_title,
+      a.article_subtitle,
+      a.article_text,
+      a.article_url,
+      a.article_created_at,
+      a.article_updated_at,
+      a.article_published_at,
+      a.article_deleted_at,
+      a.article_status,
+      group_concat(t.tag_name) AS tags
+    FROM articles a
+    LEFT JOIN articleToTag  at ON a.article_id = at.article_id
+    LEFT JOIN tags t ON at.tag_id = t.tag_id
+    WHERE a.article_url = ?
+    GROUP BY a.article_id;`,
+      slug
+    );
+    logger.debug(
+      {
+        slug,
+        articleRaw
+      },
+      'Getting article by slug'
+    );
+    return articleRaw ? this.#transformRawToObject(articleRaw) : undefined;
   }
 
   /**
@@ -161,17 +197,24 @@ class ArticlesRepository {
   }
 
   /**
+   * Transform raw DB data to JS object with tags array
+   * @param {ArticleRaw} articleRaw
+   * @returns {Article}
+   */
+  #transformRawToObject(articleRaw) {
+    return {
+      ...articleRaw,
+      tags: articleRaw.tags != null ? articleRaw.tags.split(',') : []
+    };
+  }
+
+  /**
    * Transform raw DB data to JS objects with tags array
    * @param {ArticleRaw[]} articlesRaw
    * @returns {Article[]}
    */
-  #transformRawToObject(articlesRaw) {
-    return articlesRaw.map((articleRaw) => {
-      return {
-        ...articleRaw,
-        tags: articleRaw.tags != null ? articleRaw.tags.split(',') : []
-      };
-    });
+  #transformRawsToObject(articlesRaw) {
+    return articlesRaw.map(this.#transformRawToObject);
   }
 }
 

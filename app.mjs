@@ -4,6 +4,7 @@ import { pinoHttp } from 'pino-http';
 import bodyParser from 'body-parser';
 import articlesRouter from './routes/articles.mjs';
 import blogSettingsRouter from './routes/blogSettings.mjs';
+import commentsRouter from './routes/comments.mjs';
 import adminRouter from './routes/admin.mjs';
 import userRouter from './routes/user.mjs';
 
@@ -23,8 +24,9 @@ app.set('view engine', 'ejs');
 // parse application/json
 app.use(bodyParser.json());
 
-app.use(blogSettingsRouter);
 app.use(articlesRouter);
+app.use(commentsRouter);
+app.use(blogSettingsRouter);
 app.use(adminRouter);
 app.use(userRouter);
 

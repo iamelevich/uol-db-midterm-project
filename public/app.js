@@ -13,6 +13,7 @@ document.addEventListener('alpine:init', () => {
   });
 });
 
+// Infinite scroll on the main page
 function infiniteScrollPublishedArticles() {
   return {
     triggerElement: null,
@@ -23,6 +24,7 @@ function infiniteScrollPublishedArticles() {
     isObserverPolyfilled: false,
     items: [],
     isFetching: false,
+    // Init listener for infinity scroll
     async init(elementId) {
       const ctx = this;
       this.triggerElement = document.querySelector(elementId ? elementId : '#infinite-scroll-trigger');
@@ -65,7 +67,9 @@ function infiniteScrollPublishedArticles() {
 
       this.getItems();
     },
+    // Fetch articles from backend
     async getItems() {
+      // Prevent fetching more than once at the same time
       if (this.isFetching) {
         return;
       }
@@ -100,6 +104,71 @@ function infiniteScrollPublishedArticles() {
         this.triggerElement.remove();
       }
       this.isFetching = false;
+    }
+  };
+}
+
+function commentsSection(article_id) {
+  return {
+    article_id,
+    comments: [],
+    newCommentText: '',
+    submitting: false,
+    isLoading: false,
+    errorMessage: undefined,
+    init() {
+      this.getComments();
+    },
+    async postComment() {
+      if (this.submitting) {
+        return;
+      }
+      this.submitting = true;
+      try {
+        const response = await fetch(`/api/comments/${this.article_id}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            text: this.newCommentText
+          })
+        });
+        const responseBody = await response.json();
+        if (response.status !== 200) {
+          let message = responseBody.message;
+          if (responseBody.errors && responseBody.errors.length) {
+            message = responseBody.errors
+              .map((responseError) => {
+                return responseError.msg;
+              })
+              .join('. ');
+          }
+          throw new Error(message || 'Something went wrong. Please try again later');
+        }
+        this.newCommentText = '';
+        await this.getComments();
+      } catch (error) {
+        this.errorMessage = error.message;
+      } finally {
+        this.submitting = false;
+      }
+    },
+    async getComments() {
+      // If loading not run it again
+      if (this.isLoading) {
+        return;
+      }
+      this.isLoading = true;
+
+      const commentsResponseRaw = await fetch(`/api/comments/${this.article_id}`);
+      if (commentsResponseRaw.status !== 200) {
+        console.error('Invalid response');
+        return;
+      }
+      this.comments = await commentsResponseRaw.json();
+
+      this.isLoading = false;
     }
   };
 }

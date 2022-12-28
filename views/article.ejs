@@ -34,7 +34,8 @@
       class="w-full rounded-lg bg-purple-300 py-2 hover:bg-purple-500 hover:fill-white dark:bg-purple-500 dark:hover:bg-purple-300 dark:hover:fill-black"
     >
       <span x-show="!submitting">Post</span>
-      <i class="mx-auto animate-spin" x-clock x-show="submitting" data-eva="loader-outline"></i>
+      <!-- prettier-ignore -->
+      <%- include('./partials/icons/loader', { className: 'h-5 w-5 mx-auto animate-spin', attributes: 'x-clock x-show="submitting"' }); %>
     </button>
   </div>
   <template x-for="comment in comments" :key="comment.comment_id">
@@ -48,7 +49,7 @@
   </template>
   <div
     x-show="isLoading"
-    class="flex h-64 w-full items-center justify-center text-purple-600 dark:text-purple-400"
+    class="flex h-64 w-full items-center justify-center"
   >
     <!-- prettier-ignore -->
     <%- include('./partials/loading'); %>

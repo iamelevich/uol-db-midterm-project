@@ -62,8 +62,10 @@
       x-bind:class="submitting ? 'bg-gray-600 dark:bg-gray-400' : 'bg-green-500 hover:bg-green-600 dark:bg-cyan-600 dark:hover:bg-cyan-500'"
       class="ml-2 flex-none rounded-md px-2"
     >
-      <i x-show="!submitting" data-eva="save-outline"></i>
-      <i class="animate-spin" x-show="submitting" data-eva="loader-outline"></i>
+      <!-- prettier-ignore -->
+      <%- include('./icons/save', { className: 'h-5 w-5', attributes: 'x-show="!submitting"' }); %>
+      <!-- prettier-ignore -->
+      <%- include('./icons/loader', { className: 'h-5 w-5 animate-spin', attributes: 'x-show="submitting"' }); %>
     </button>
   </div>
   <span x-text="errorMessage" class="text-red-500 dark:text-red-300"></span>

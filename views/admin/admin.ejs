@@ -1,2 +1,261 @@
 <h1 class="text-center text-2xl">Blog admin page</h1>
 <p class="text-center text-slate-500 dark:text-slate-300">There you can manage articles.</p>
+<div
+  x-data="{
+    articles: [],
+    isLoading: false,
+    page: 1,
+    pages: [1],
+    perPage: 25,
+    count: 0,
+    init() {
+      this.getArticles();
+    },
+    async getArticles() {
+      // Prevent fetching more than once at the same time
+      if (this.isLoading) {
+        return;
+      }
+      this.isLoading = true;
+      const searchParams = new URLSearchParams({
+        page: this.page,
+        pageSize: this.perPage
+      });
+      // Fetch articles
+      const articlesResponse = await fetch(`/api/articles?${searchParams.toString()}`);
+      const parsedArticlesResponse = await articlesResponse.json();
+      if (articlesResponse.status !== 200) {
+        let message = parsedArticlesResponse.message;
+        if (parsedArticlesResponse.errors && parsedArticlesResponse.errors.length) {
+          message = parsedArticlesResponse.errors
+            .map((responseError) => {
+              return responseError.msg;
+            })
+            .join('. ');
+        }
+        // Add notification
+        this.$store.notifications.add('error', `Articles loading error: ${message}`);
+        return;
+      }
+      // Set articles
+      this.articles = parsedArticlesResponse.articles;
+      this.count = parsedArticlesResponse.count;
+
+      this.pages = Array(Math.ceil(this.count / this.perPage)).fill().map((item, index) => index + 1);
+
+      // Stop loading
+      this.isLoading = false;
+    },
+    async deleteArticle(article_id) {
+      // Prevent fetching more than once at the same time
+      if (this.isLoading) {
+        return;
+      }
+      this.isLoading = true;
+
+      const response = await fetch(`/api/articles/${article_id}`, {
+        method: 'DELETE'
+      });
+      const responseBody = await response.json();
+      if (response.status !== 200) {
+        let message = responseBody.message;
+        if (responseBody.errors && responseBody.errors.length) {
+          message = responseBody.errors
+            .map((responseError) => {
+              return responseError.msg;
+            })
+            .join('. ');
+        }
+        // Add notification
+        this.$store.notifications.add('error', `Articles loading error: ${message}`);
+        return;
+      }
+
+      this.$store.notifications.add('success', `Article ${article_id} was successfully deleted`);
+
+      // Stop loading
+      this.isLoading = false;
+
+      await this.getArticles();
+    },
+    async publishArticle(article_id) {
+      // Prevent fetching more than once at the same time
+      if (this.isLoading) {
+        return;
+      }
+      this.isLoading = true;
+
+      const response = await fetch(`/api/articles/${article_id}/publish`, {
+        method: 'PUT'
+      });
+      const responseBody = await response.json();
+      if (response.status !== 200) {
+        let message = responseBody.message;
+        if (responseBody.errors && responseBody.errors.length) {
+          message = responseBody.errors
+            .map((responseError) => {
+              return responseError.msg;
+            })
+            .join('. ');
+        }
+        // Add notification
+        this.$store.notifications.add('error', `Articles loading error: ${message}`);
+        return;
+      }
+
+      this.$store.notifications.add('success', `Article ${article_id} was successfully published`);
+
+      // Stop loading
+      this.isLoading = false;
+
+      await this.getArticles();
+    },
+    async unpublishArticle(article_id) {
+      // Prevent fetching more than once at the same time
+      if (this.isLoading) {
+        return;
+      }
+      this.isLoading = true;
+
+      const response = await fetch(`/api/articles/${article_id}/unpublish`, {
+        method: 'PUT'
+      });
+      const responseBody = await response.json();
+      if (response.status !== 200) {
+        let message = responseBody.message;
+        if (responseBody.errors && responseBody.errors.length) {
+          message = responseBody.errors
+            .map((responseError) => {
+              return responseError.msg;
+            })
+            .join('. ');
+        }
+        // Add notification
+        this.$store.notifications.add('error', `Articles loading error: ${message}`);
+        return;
+      }
+
+      this.$store.notifications.add('success', `Article ${article_id} was successfully unpublished`);
+
+      // Stop loading
+      this.isLoading = false;
+
+      await this.getArticles();
+    }
+
+  }"
+  x-init="init()"
+>
+  <!-- Loading -->
+  <div x-show="this.isLoading" class="flex h-64 w-full items-center justify-center">
+    <!-- prettier-ignore -->
+    <%- include('../partials/loading'); %>
+  </div>
+  <!-- Pagination -->
+  <div x-cloak x-show="!this.isLoading" class="flex items-center">
+    <label :for="$id('page')" class="mr-1">Page: </label>
+    <select class="rounded-lg" name="page" :id="$id('page')" @change="getArticles()" x-model="page">
+      <template x-for="availablePage in pages" :key="availablePage">
+        <option :value="availablePage" x-text="availablePage"></option>
+      </template>
+    </select>
+    <div class="grow"></div>
+    <label :for="$id('per-page')" class="mr-1">Per page: </label>
+    <select
+      class="rounded-lg"
+      name="perPage"
+      :id="$id('per-page')"
+      @change="page = 1; getArticles()"
+      x-model="perPage"
+    >
+      <option value="10">10</option>
+      <option value="25">25</option>
+      <option value="50">50</option>
+      <option value="100">100</option>
+    </select>
+  </div>
+  <!-- Articles table -->
+  <table x-cloak x-show="!this.isLoading" class="my-4 w-full">
+    <thead class="text-left text-lg">
+      <th>ID</th>
+      <th>Article</th>
+      <th>Dates</th>
+      <th>Actions</th>
+    </thead>
+    <tbody>
+      <template x-for="article in articles" :key="article.article_id">
+        <tr class="odd:bg-gray-100 dark:odd:bg-gray-500">
+          <td class="px-1" x-text="article.article_id"></td>
+          <td class="px-1 text-sm">
+            <p><strong>Title: </strong><span x-text="article.article_title"></span></p>
+            <p><strong>Subtitle: </strong><span x-text="article.article_subtitle"></span></p>
+            <p><strong>URL: </strong><span x-text="article.article_url"></span></p>
+            <p><strong>Status: </strong><span x-text="article.article_status"></span></p>
+          </td>
+          <td class="w-64 px-1 text-sm">
+            <p>
+              <strong>Created: </strong
+              ><span x-text="(new Date(article.article_created_at)).toLocaleString()"></span>
+            </p>
+            <p>
+              <strong>Updated: </strong
+              ><span x-text="(new Date(article.article_updated_at)).toLocaleString()"></span>
+            </p>
+            <p>
+              <strong>Published: </strong
+              ><span
+                x-text="article.article_published_at ? (new Date(article.article_published_at)).toLocaleString() : 'undefined'"
+              ></span>
+            </p>
+          </td>
+          <td class="flex flex-col items-center">
+            <!-- Edit Action -->
+            <div class="group relative">
+              <span
+                class="absolute right-0 top-1/2 translate-x-full -translate-y-1/2 rounded-md bg-gray-800 px-1 text-sm text-gray-100 opacity-0 transition-opacity group-hover:opacity-100"
+                >Edit</span
+              >
+              <button>
+                <!-- prettier-ignore -->
+                <%- include('../partials/icons/edit', { className: 'h-6 w-6' }); %>
+              </button>
+            </div>
+            <!-- Publish Action -->
+            <div x-show="article.article_status === 'Draft'" class="group relative">
+              <span
+                class="absolute right-0 top-1/2 translate-x-full -translate-y-1/2 rounded-md bg-gray-800 px-1 text-sm text-gray-100 opacity-0 transition-opacity group-hover:opacity-100"
+                >Publish</span
+              >
+              <button @click="publishArticle(article.article_id)">
+                <!-- prettier-ignore -->
+                <%- include('../partials/icons/book', { className: 'h-6 w-6' }); %>
+              </button>
+            </div>
+            <!-- Unpublish Action -->
+            <div x-show="article.article_status === 'Published'" class="group relative">
+              <span
+                class="absolute right-0 top-1/2 translate-x-full -translate-y-1/2 rounded-md bg-gray-800 px-1 text-sm text-gray-100 opacity-0 transition-opacity group-hover:opacity-100"
+                >Unpublish</span
+              >
+              <button @click="unpublishArticle(article.article_id)">
+                <!-- prettier-ignore -->
+                <%- include('../partials/icons/archive', { className: 'h-6 w-6' }); %>
+              </button>
+            </div>
+            <!-- Delete Action -->
+            <div class="group relative">
+              <span
+                class="absolute right-0 top-1/2 translate-x-full -translate-y-1/2 rounded-md bg-gray-800 px-1 text-sm text-gray-100 opacity-0 transition-opacity group-hover:opacity-100"
+                >Delete</span
+              >
+              <button @click="deleteArticle(article.article_id)">
+                <!-- prettier-ignore -->
+                <%- include('../partials/icons/trash', { className: 'h-6 w-6' }); %>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </template>
+    </tbody>
+  </table>
+</div>

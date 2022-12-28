@@ -33,7 +33,8 @@ import logger from '../lib/logger.mjs';
 
 const STATUSES = {
   PUBLISHED: 'Published',
-  DRAFT: 'Draft'
+  DRAFT: 'Draft',
+  DELETED: 'Deleted'
 };
 
 class ArticlesRepository {
@@ -52,12 +53,19 @@ class ArticlesRepository {
     const articlesRaw = await this.#db.all(
       this.#generateGetArticlesSql({
         joinTags: true,
+        where: 'a.article_status != ?',
         order: 'a.article_created_at DESC',
         page,
         pageSize
-      })
+      }),
+      STATUSES.DELETED
     );
-    const count = await this.#db.get(this.#generateCountArticlesSql());
+    const count = await this.#db.get(
+      this.#generateCountArticlesSql({
+        where: 'a.article_status != ?'
+      }),
+      STATUSES.DELETED
+    );
 
     return {
       articles: this.#transformRawsToObject(articlesRaw),
@@ -119,9 +127,10 @@ class ArticlesRepository {
     FROM articles a
     LEFT JOIN articleToTag  at ON a.article_id = at.article_id
     LEFT JOIN tags t ON at.tag_id = t.tag_id
-    WHERE a.article_url = ?
+    WHERE a.article_url = ? AND a.article_status = ?
     GROUP BY a.article_id;`,
-      slug
+      slug,
+      STATUSES.PUBLISHED
     );
     logger.debug(
       {
@@ -131,6 +140,55 @@ class ArticlesRepository {
       'Getting article by slug'
     );
     return articleRaw ? this.#transformRawToObject(articleRaw) : undefined;
+  }
+
+  /**
+   * Set article status to deleted
+   * @param {number} article_id - Article ID
+   * @returns {Promise<boolean>}
+   */
+  async delete(article_id) {
+    const result = await this.#db.run(
+      'UPDATE articles SET article_deleted_at = ?, article_status = ? WHERE article_id = ?',
+      new Date().valueOf(),
+      STATUSES.DELETED,
+      article_id
+    );
+    return result.changes > 0;
+  }
+
+  /**
+   * Set article status to published
+   * @param {number} article_id - Article ID
+   * @returns {Promise<boolean>}
+   */
+  async publish(article_id) {
+    const currentTime = new Date().valueOf();
+    const result = await this.#db.run(
+      'UPDATE articles SET article_updated_at = ?, article_published_at = ?, article_status = ? WHERE article_id = ?',
+      currentTime,
+      currentTime,
+      STATUSES.PUBLISHED,
+      article_id
+    );
+    return result.changes > 0;
+  }
+
+  /**
+   * Set article status to unpublish
+   * @param {number} article_id - Article ID
+   * @returns {Promise<boolean>}
+   */
+  async unpublish(article_id) {
+    const currentTime = new Date().valueOf();
+    const result = await this.#db.run(
+      'UPDATE articles SET article_updated_at = ?, article_published_at = ?, article_status = ? WHERE article_id = ?',
+      currentTime,
+      null,
+      STATUSES.DRAFT,
+      article_id
+    );
+    return result.changes > 0;
   }
 
   /**

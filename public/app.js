@@ -1,6 +1,3 @@
-// Need to setup icons (replaces all <i> with svg)
-eva.replace();
-
 // Detect is dart theme on
 const darkThemeMq = window.matchMedia('(prefers-color-scheme: dark)');
 document.addEventListener('alpine:init', () => {
@@ -92,6 +89,7 @@ function infiniteScrollPublishedArticles() {
         page: this.page,
         pageSize: this.itemsPerPage
       });
+      // Fetch articles
       const itemsResponse = await fetch(`/api/articles/published?${searchParams.toString()}`);
       if (itemsResponse.status !== 200) {
         let message = responseBody.message;
@@ -102,6 +100,7 @@ function infiniteScrollPublishedArticles() {
             })
             .join('. ');
         }
+        // Add notification
         this.$store.notifications.add('error', `Articles loading error: ${message}`);
         return;
       }
@@ -147,6 +146,7 @@ function commentsSection(article_id) {
       }
       this.submitting = true;
       try {
+        // Send POST request to create comment
         const response = await fetch(`/api/comments/${this.article_id}`, {
           method: 'POST',
           headers: {
@@ -156,7 +156,9 @@ function commentsSection(article_id) {
             text: this.newCommentText
           })
         });
+        // Parse response
         const responseBody = await response.json();
+        // Check and display error
         if (response.status !== 200) {
           let message = responseBody.message;
           if (responseBody.errors && responseBody.errors.length) {
@@ -168,13 +170,18 @@ function commentsSection(article_id) {
           }
           throw new Error(message || 'Something went wrong. Please try again later');
         }
+        // Clear comment textarea
         this.newCommentText = '';
+        // Add notification
         this.$store.notifications.add('success', 'Comment was successfully added!');
         await this.getComments();
       } catch (error) {
+        // Show error message
         this.errorMessage = error.message;
+        // Add notification
         this.$store.notifications.add('error', error.message);
       } finally {
+        // Mar that no submitting
         this.submitting = false;
       }
     },
@@ -185,7 +192,9 @@ function commentsSection(article_id) {
       }
       this.isLoading = true;
 
+      // Fetch comments
       const commentsResponseRaw = await fetch(`/api/comments/${this.article_id}`);
+      // Check errors
       if (commentsResponseRaw.status !== 200) {
         let message = responseBody.message;
         if (responseBody.errors && responseBody.errors.length) {
@@ -195,9 +204,11 @@ function commentsSection(article_id) {
             })
             .join('. ');
         }
+        // Add notification
         this.$store.notifications.add('error', `Comments loading error: ${message}`);
         return;
       }
+      // Update comments array
       this.comments = await commentsResponseRaw.json();
 
       this.isLoading = false;

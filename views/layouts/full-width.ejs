@@ -6,9 +6,6 @@
     <title><%- settings.blog_title %>: <%- title %></title>
     <link rel="stylesheet" href="/dist.css" />
 
-    <!-- EVA Icons -->
-    <script src="https://unpkg.com/eva-icons"></script>
-
     <!-- Alpine Plugins -->
     <script defer src="https://unpkg.com/@alpinejs/persist@3.x.x/dist/cdn.min.js"></script>
     <!-- Application JS -->
@@ -28,8 +25,10 @@
           <a class="gradient-link inline-block px-2 align-middle" href="/admin/settings">Settings</a>
         </nav>
         <button x-data @click="$store.darkMode.toggle()" class="flex-none">
-          <i x-show="!$store.darkMode.on" data-eva="moon-outline"></i>
-          <i x-show="$store.darkMode.on" data-eva="sun-outline"></i>
+          <!-- prettier-ignore -->
+          <%- include('../partials/icons/moon', { attributes: 'x-clock x-show="!$store.darkMode.on"' }); %>
+          <!-- prettier-ignore -->
+          <%- include('../partials/icons/sun', { attributes: 'x-clock x-show="$store.darkMode.on"' }); %>
         </button>
       </header>
       <main class="grow"><%- body %></main>
@@ -49,21 +48,8 @@
           >
             <span class="grow text-lg" x-text="notification.text"></span>
             <button>
-              <svg
-                class="hover:pointer h-5 w-5"
-                @click="$store.notifications.remove(notification)"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-              >
-                <g data-name="Layer 2">
-                  <g data-name="close">
-                    <rect width="24" height="24" transform="rotate(180 12 12)" opacity="0" />
-                    <path
-                      d="M13.41 12l4.3-4.29a1 1 0 1 0-1.42-1.42L12 10.59l-4.29-4.3a1 1 0 0 0-1.42 1.42l4.3 4.29-4.3 4.29a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l4.29-4.3 4.29 4.3a1 1 0 0 0 1.42 0 1 1 0 0 0 0-1.42z"
-                    />
-                  </g>
-                </g>
-              </svg>
+              <!-- prettier-ignore -->
+              <%- include('../partials/icons/close', { className: 'hover:pointer h-5 w-5', attributes: '@click="$store.notifications.remove(notification)"' }); %>
             </button>
           </div>
         </template>

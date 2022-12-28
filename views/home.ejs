@@ -1,4 +1,5 @@
 <div x-data="infiniteScrollPublishedArticles()" x-init="init()">
+  <!-- Articles list -->
   <template x-for="article in items" :key="article.article_id">
     <div class="my-6">
       <h1 class="text-center text-2xl">
@@ -27,6 +28,7 @@
       >
     </div>
   </template>
+  <!-- Infinite scroll trigger -->
   <div
     class="flex h-64 w-full items-center justify-center"
     id="infinite-scroll-trigger"

@@ -67,7 +67,7 @@
             .join('. ');
         }
         // Add notification
-        this.$store.notifications.add('error', `Articles loading error: ${message}`);
+        this.$store.notifications.add('error', `Articles deleting error: ${message}`);
         return;
       }
 
@@ -99,7 +99,7 @@
             .join('. ');
         }
         // Add notification
-        this.$store.notifications.add('error', `Articles loading error: ${message}`);
+        this.$store.notifications.add('error', `Articles publishing error: ${message}`);
         return;
       }
 
@@ -131,7 +131,7 @@
             .join('. ');
         }
         // Add notification
-        this.$store.notifications.add('error', `Articles loading error: ${message}`);
+        this.$store.notifications.add('error', `Articles unpublishing error: ${message}`);
         return;
       }
 

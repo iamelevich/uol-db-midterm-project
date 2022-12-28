@@ -1,3 +1,4 @@
+<!-- Article -->
 <div class="my-6">
   <h1 class="text-center text-2xl"><%- article.article_title %></h1>
   <h2 class="text-center text-lg"><%- article.article_subtitle %></h2>
@@ -15,7 +16,9 @@
   <div class="prose text-justify dark:prose-invert lg:prose-xl"><%- article.article_text %></div>
 </div>
 
+<!-- Comments section -->
 <div x-data="commentsSection(<%- article.article_id %>)" x-init="init()">
+  <!-- Add new comment area -->
   <div class="mb-2 border-t border-gray-500 p-2 dark:border-gray-300">
     <label class="block py-2 text-center text-lg" :for="$id('comment')">Write comment</label>
     <textarea
@@ -38,6 +41,7 @@
       <%- include('./partials/icons/loader', { className: 'h-5 w-5 mx-auto animate-spin', attributes: 'x-clock x-show="submitting"' }); %>
     </button>
   </div>
+  <!-- Comments list -->
   <template x-for="comment in comments" :key="comment.comment_id">
     <div class="mb-2 rounded-lg border border-gray-500 p-2 dark:border-gray-300">
       <p

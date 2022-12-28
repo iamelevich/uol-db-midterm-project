@@ -15,15 +15,20 @@
   </head>
   <body x-data :class="$store.darkMode.on && 'dark bg-slate-700'">
     <div class="container mx-auto flex min-h-screen flex-col dark:fill-white dark:text-white">
+      <!-- Header -->
       <header class="flex flex-none py-4">
+        <!-- Link to the home page and blog subtitle -->
         <a class="gradient-link flex-none text-2xl uppercase" href="/"><%- settings.blog_subtitle %></a>
+        <!-- Author name -->
         <span class="flex-none pl-1 text-sm text-slate-500 dark:text-slate-300"
           >by <%- settings.blog_author %></span
         >
+        <!-- Some navigation -->
         <nav class="flex grow items-center justify-end">
           <a class="gradient-link inline-block px-2 align-middle" href="/admin">Admin</a>
           <a class="gradient-link inline-block px-2 align-middle" href="/admin/settings">Settings</a>
         </nav>
+        <!-- Change theme button -->
         <button x-data @click="$store.darkMode.toggle()" class="flex-none">
           <!-- prettier-ignore -->
           <%- include('../partials/icons/moon', { attributes: 'x-clock x-show="!$store.darkMode.on"' }); %>
@@ -31,8 +36,11 @@
           <%- include('../partials/icons/sun', { attributes: 'x-clock x-show="$store.darkMode.on"' }); %>
         </button>
       </header>
+      <!-- Part with page content -->
       <main class="grow"><%- body %></main>
+      <!-- Footer -->
       <footer class="flex-none py-4 text-right">by <%- settings.blog_author %></footer>
+      <!-- Notifications -->
       <div class="fixed top-4 right-4">
         <template x-for="notification in Array.from($store.notifications.data)">
           <div

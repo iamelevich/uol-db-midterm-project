@@ -32,8 +32,10 @@
           throw new Error(message || 'Something went wrong. Please try again later');
         }
         this.changed = false;
+        $store.notifications.add('success', '<%- label %> was updated successfully!');
       } catch (error) {
         this.errorMessage = error.message;
+        $store.notifications.add('error', error.message);
       } finally {
         this.submitting = false;
       }

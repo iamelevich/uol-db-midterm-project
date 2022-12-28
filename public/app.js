@@ -11,6 +11,20 @@ document.addEventListener('alpine:init', () => {
       this.on = !this.on;
     }
   });
+
+  // Add store to the notifications
+  Alpine.store('notifications', {
+    data: new Set(),
+    add(type, text) {
+      this.data.add({
+        type,
+        text
+      });
+    },
+    remove(item) {
+      this.data.delete(item);
+    }
+  });
 });
 
 // Infinite scroll on the main page
@@ -80,7 +94,15 @@ function infiniteScrollPublishedArticles() {
       });
       const itemsResponse = await fetch(`/api/articles/published?${searchParams.toString()}`);
       if (itemsResponse.status !== 200) {
-        console.error('Invalid response');
+        let message = responseBody.message;
+        if (responseBody.errors && responseBody.errors.length) {
+          message = responseBody.errors
+            .map((responseError) => {
+              return responseError.msg;
+            })
+            .join('. ');
+        }
+        this.$store.notifications.add('error', `Articles loading error: ${message}`);
         return;
       }
       // Parse response
@@ -147,9 +169,11 @@ function commentsSection(article_id) {
           throw new Error(message || 'Something went wrong. Please try again later');
         }
         this.newCommentText = '';
+        this.$store.notifications.add('success', 'Comment was successfully added!');
         await this.getComments();
       } catch (error) {
         this.errorMessage = error.message;
+        this.$store.notifications.add('error', error.message);
       } finally {
         this.submitting = false;
       }
@@ -163,7 +187,15 @@ function commentsSection(article_id) {
 
       const commentsResponseRaw = await fetch(`/api/comments/${this.article_id}`);
       if (commentsResponseRaw.status !== 200) {
-        console.error('Invalid response');
+        let message = responseBody.message;
+        if (responseBody.errors && responseBody.errors.length) {
+          message = responseBody.errors
+            .map((responseError) => {
+              return responseError.msg;
+            })
+            .join('. ');
+        }
+        this.$store.notifications.add('error', `Comments loading error: ${message}`);
         return;
       }
       this.comments = await commentsResponseRaw.json();

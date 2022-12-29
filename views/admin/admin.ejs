@@ -223,10 +223,10 @@
                 class="absolute right-0 top-1/2 translate-x-full -translate-y-1/2 rounded-md bg-gray-800 px-1 text-sm text-gray-100 opacity-0 transition-opacity group-hover:opacity-100"
                 >Edit</span
               >
-              <button>
+              <a :href="'/admin/edit/'+article.article_id">
                 <!-- prettier-ignore -->
                 <%- include('../partials/icons/edit', { className: 'h-6 w-6' }); %>
-              </button>
+              </a>
             </div>
             <!-- Publish Action -->
             <div x-show="article.article_status === 'Draft'" class="group relative">

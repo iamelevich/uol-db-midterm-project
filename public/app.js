@@ -217,14 +217,22 @@ function commentsSection(article_id) {
 }
 
 // Creating article init data
-function createDraftData() {
+function createDraftData({
+  article_id,
+  article_title,
+  article_subtitle,
+  article_url,
+  article_text,
+  tag_ids
+}) {
   return {
+    article_id,
     draft: {
-      title: '',
-      subtitle: '',
-      url: '',
-      text: '',
-      tags: []
+      title: article_title,
+      subtitle: article_subtitle,
+      url: article_url,
+      text: article_text,
+      tags: tag_ids
     },
     submitting: false,
     errors: {},
@@ -277,12 +285,13 @@ function createDraftData() {
       this.wysiwyg.contentDocument.designMode = 'off';
       this.draft.text = this.wysiwyg.contentDocument.body.innerHTML;
       try {
-        const response = await fetch('/api/articles/draft', {
-          method: 'POST',
+        const response = await fetch(article_id ? `/api/articles/${article_id}` : '/api/articles/draft', {
+          method: article_id ? 'PUT' : 'POST',
           headers: {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
+            article_id,
             article_title: this.draft.title,
             article_subtitle: this.draft.subtitle,
             article_text: this.draft.text,

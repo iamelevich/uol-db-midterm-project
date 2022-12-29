@@ -21,7 +21,8 @@ class TagsRepository {
       `SELECT
         tag_id,
         tag_name
-      FROM tags;`
+      FROM tags
+      ORDER BY tag_id ASC;`
     );
 
     return tags;
@@ -34,6 +35,26 @@ class TagsRepository {
    * @returns {Promise<boolean>}
    */
   async addToArticle(article_id, tag_ids) {
+    const result = await this.#db.insertMany(
+      'articleToTag',
+      ['article_id', 'tag_id'],
+      ...tag_ids.map((tag_id) => [article_id, tag_id])
+    );
+    return result.changes === tag_ids.length;
+  }
+
+  /**
+   * Update article - tags relations
+   * @param {number} article_id
+   * @param {number[]} tag_ids
+   * @returns
+   */
+  async updateArticleTags(article_id, tag_ids) {
+    await this.#db.run(
+      `DELETE FROM articleToTag WHERE article_id = ? AND tag_id NOT IN (?)`,
+      article_id,
+      tag_ids.join(',')
+    );
     const result = await this.#db.insertMany(
       'articleToTag',
       ['article_id', 'tag_id'],

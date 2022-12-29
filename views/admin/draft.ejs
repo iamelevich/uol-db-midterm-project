@@ -1,6 +1,17 @@
-<h1 class="text-center text-2xl">Create new draft article</h1>
-<p class="text-center text-slate-500 dark:text-slate-300">There you can create new draft article.</p>
-<form @submit.prevent x-data="createDraftData()" class="mt-4">
+<h1 class="text-center text-2xl"><%- locals.article ? 'Modify' : 'Create new draft' %> article</h1>
+<p class="text-center text-slate-500 dark:text-slate-300">There you can <%- locals.article ? 'modify' : 'create new draft' %> article.</p>
+<form
+  @submit.prevent
+  x-data="createDraftData({
+    article_id: <%- locals.article ? locals.article.article_id : '' %>,
+    article_title: '<%- locals.article ? locals.article.article_title : '' %>',
+    article_subtitle: '<%- locals.article ? locals.article.article_subtitle : '' %>',
+    article_url: '<%- locals.article ? locals.article.article_url : '' %>',
+    article_text: '<%- locals.article ? locals.article.article_text : '' %>',
+    tag_ids: [<%- locals.article ? locals.article.tag_ids.join(',') : '' %>],
+  })"
+  class="mt-4"
+>
   <!-- Title -->
   <div class="my-2">
     <label :for="$id('title')" class="block text-gray-700 dark:text-slate-300"> Title</label>
@@ -58,7 +69,7 @@
       multiple
     >
       <% for(const tag of tags) { %>
-        <option value="<%- tag.tag_id %>"><%- tag.tag_name %></option>
+      <option value="<%- tag.tag_id %>"><%- tag.tag_name %></option>
       <% } %>
     </select>
     <p x-show="errors.tags" x-text="errors.tags" class="text-red-500 dark:text-red-300"></p>

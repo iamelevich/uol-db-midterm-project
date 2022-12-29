@@ -40,6 +40,16 @@ import tagsRepository from './tagsRepository.mjs';
  * @property {string} article_url
  */
 
+/**
+ * @typedef {Object} ArticleForEdit
+ * @property {number} article_id
+ * @property {string} article_title
+ * @property {string} article_subtitle
+ * @property {string} article_text
+ * @property {string} article_url
+ * @property {number[]} tag_ids
+ */
+
 const STATUSES = {
   PUBLISHED: 'Published',
   DRAFT: 'Draft',
@@ -63,7 +73,7 @@ class ArticlesRepository {
       this.#generateGetArticlesSql({
         joinTags: true,
         where: 'a.article_status != ?',
-        order: 'a.article_created_at DESC',
+        order: 'a.article_updated_at DESC',
         page,
         pageSize
       }),
@@ -112,6 +122,44 @@ class ArticlesRepository {
       articles: this.#transformRawsToObject(articlesRaw),
       count: count.articlesCount
     };
+  }
+
+  /**
+   * Get article data for edit page
+   * @param {number} article_id
+   * @returns {Promise<ArticleForEdit|undefined>}
+   */
+  async getByIdForEdit(article_id) {
+    const articleRaw = await this.#db.get(
+      `SELECT
+        a.article_id,
+        a.article_title,
+        a.article_subtitle,
+        a.article_text,
+        a.article_url,
+        group_concat(t.tag_id) AS tag_ids
+      FROM articles a
+      LEFT JOIN articleToTag  at ON a.article_id = at.article_id
+      LEFT JOIN tags t ON at.tag_id = t.tag_id
+      WHERE a.article_id = ? AND a.article_status IN (?, ?)
+      GROUP BY a.article_id;`,
+      article_id,
+      STATUSES.PUBLISHED,
+      STATUSES.DRAFT
+    );
+    logger.debug(
+      {
+        article_id,
+        articleRaw
+      },
+      'Getting article for edit by ID'
+    );
+    return articleRaw
+      ? {
+          ...articleRaw,
+          tag_ids: articleRaw.tag_ids ? articleRaw.tag_ids.split(',') : []
+        }
+      : undefined;
   }
 
   /**
@@ -230,12 +278,53 @@ class ArticlesRepository {
   }
 
   /**
+   * Update Article
+   * @param {ArticleForEdit} articleBody
+   * @returns {Promise<boolean>}
+   */
+  async update(articleBody) {
+    const currentTime = new Date().valueOf();
+    const result = await this.#db.run(
+      `UPDATE articles
+      SET
+        article_title = ?,
+        article_subtitle = ?,
+        article_text = ?,
+        article_url = ?,
+        article_updated_at = ?
+      WHERE article_id = ?`,
+      articleBody.article_title,
+      articleBody.article_subtitle,
+      articleBody.article_text,
+      articleBody.article_url,
+      currentTime,
+      articleBody.article_id
+    );
+    logger.debug(
+      {
+        articleBody,
+        result
+      },
+      'Updating article'
+    );
+    if (!result.changes) {
+      return false;
+    }
+    return await tagsRepository.updateArticleTags(articleBody.article_id, articleBody.tag_ids);
+  }
+
+  /**
    * Check is given url unique in articles table
-   * @param {string} url
+   * @param {string} url - URL to check
+   * @param {number} [article_id] Article ID to exclude
    * @returns {Promise<boolean>} Return true if url is unique
    */
-  async isUrlUnique(url) {
-    const response = await this.#db.get(`SELECT article_id FROM articles WHERE article_url = ?`, url);
+  async isUrlUnique(url, article_id) {
+    const response = await this.#db.get(
+      `SELECT article_id FROM articles WHERE article_url = ? ${article_id ? `AND article_id != ?` : ''}`,
+      url,
+      article_id
+    );
     return !response;
   }
 

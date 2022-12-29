@@ -137,6 +137,72 @@ router.post(
 );
 
 /**
+ * @description update article
+ */
+router.put(
+  '/api/articles/:article_id',
+  param('article_id').isNumeric().not().isEmpty(),
+  body('article_title').custom((value) => {
+    if (!value) {
+      throw new Error("Title shouldn't be empty!");
+    }
+    return true;
+  }),
+  body('article_subtitle').custom((value) => {
+    if (!value) {
+      throw new Error("Subtitle shouldn't be empty!");
+    }
+    return true;
+  }),
+  body('article_text').custom((value) => {
+    if (!value) {
+      throw new Error("Text shouldn't be empty!");
+    }
+    return true;
+  }),
+  body('article_url').custom(async (value, { req }) => {
+    if (!value) {
+      throw new Error("Url shouldn't be empty!");
+    }
+    if (!(await articlesRepository.isUrlUnique(value, req.params.article_id))) {
+      throw new Error('Url should be unique');
+    }
+    return true;
+  }),
+  body('tags').isArray(),
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    try {
+      return res.json({
+        success: await articlesRepository.update({
+          article_id: req.params.article_id,
+          article_title: req.body.article_title,
+          article_subtitle: req.body.article_subtitle,
+          article_text: req.body.article_text,
+          article_url: req.body.article_url,
+          tag_ids: req.body.tags
+        })
+      });
+    } catch (err) {
+      req.log.error(
+        {
+          err,
+          body: req.body,
+          params: req.params
+        },
+        `Article updating error`
+      );
+      return res.status(500).json({
+        message: 'Something went wrong'
+      });
+    }
+  }
+);
+
+/**
  * @description publish article
  */
 router.put(

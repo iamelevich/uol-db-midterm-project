@@ -116,14 +116,16 @@ router.post(
     }
     return true;
   }),
+  body('tags').isArray(),
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
     try {
+      const { tags, ...article } = req.body;
       return res.json({
-        success: await articlesRepository.create(req.body)
+        success: await articlesRepository.create(article, tags)
       });
     } catch (err) {
       req.log.error(err, `Article(${JSON.stringify(req.body)}) creating error`);

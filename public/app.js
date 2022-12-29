@@ -216,13 +216,15 @@ function commentsSection(article_id) {
   };
 }
 
+// Creating article init data
 function createDraftData() {
   return {
     draft: {
       title: '',
       subtitle: '',
       url: '',
-      text: ''
+      text: '',
+      tags: []
     },
     submitting: false,
     errors: {},
@@ -242,6 +244,7 @@ function createDraftData() {
         .replace(/-+/g, '-'); // collapse dashes
     },
     wysiwyg: null,
+    // Init WYSIWYG editor in iframe
     initWysiwyg(el) {
       // Get el
       this.wysiwyg = el;
@@ -254,15 +257,17 @@ function createDraftData() {
           body {font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';}
         </style>`;
       this.wysiwyg.contentDocument.body.innerHTML += this.draft.text;
-      // this.wysiwyg.contentDocument.body.addEventListener('click', () => {
-      //   delete this.errors.article_text;
-      // });
+      this.wysiwyg.contentDocument.body.addEventListener('click', () => {
+        delete this.errors.article_text;
+      });
       // Make editable
       this.wysiwyg.contentDocument.designMode = 'on';
     },
+    // Do WYSIWYG operation
     format: function (cmd, param) {
       this.wysiwyg.contentDocument.execCommand(cmd, !1, param || null);
     },
+    // Save article
     async save() {
       if (this.submitting) {
         return;
@@ -281,7 +286,8 @@ function createDraftData() {
             article_title: this.draft.title,
             article_subtitle: this.draft.subtitle,
             article_text: this.draft.text,
-            article_url: this.draft.url
+            article_url: this.draft.url,
+            tags: this.draft.tags
           })
         });
         const responseBody = await response.json();

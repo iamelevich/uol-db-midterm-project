@@ -1,5 +1,6 @@
 import express from 'express';
 import blogSettingsRepository from '../repositories/blogSettingsRepository.mjs';
+import tagsRepository from '../repositories/tagsRepository.mjs';
 
 const router = express.Router();
 
@@ -16,7 +17,8 @@ router.get('/admin', async (req, res) => {
  */
 router.get('/admin/draft', async (req, res) => {
   const settings = await blogSettingsRepository.getAllMap();
-  res.render('admin/draft', { title: 'Create Draft', settings });
+  const tags = await tagsRepository.getAll();
+  res.render('admin/draft', { title: 'Create Draft', settings, tags });
 });
 
 /**

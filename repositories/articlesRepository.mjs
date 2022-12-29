@@ -1,5 +1,6 @@
 import db from '../lib/db.mjs';
 import logger from '../lib/logger.mjs';
+import tagsRepository from './tagsRepository.mjs';
 
 /**
  * @typedef {Object} Article
@@ -202,9 +203,10 @@ class ArticlesRepository {
   /**
    * Create new Article
    * @param {NewArticleBody} articleBody
+   * @param {number[]} tag_ids - Array of tag id's to associate with article
    * @returns {Promise<boolean>}
    */
-  async create(articleBody) {
+  async create(articleBody, tag_ids) {
     const currentTime = new Date().valueOf();
     const result = await this.#db.insert('articles', {
       ...articleBody,
@@ -219,7 +221,12 @@ class ArticlesRepository {
       },
       'Creating new article'
     );
-    return result.changes > 0;
+    if (!result.changes) {
+      return false;
+    }
+
+    const article_id = result.lastID;
+    return await tagsRepository.addToArticle(article_id, tag_ids);
   }
 
   /**

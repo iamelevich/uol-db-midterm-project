@@ -215,3 +215,95 @@ function commentsSection(article_id) {
     }
   };
 }
+
+function createDraftData() {
+  return {
+    draft: {
+      title: '',
+      subtitle: '',
+      url: '',
+      text: ''
+    },
+    submitting: false,
+    errors: {},
+    updateSlug() {
+      let str = this.draft.title.trim().toLowerCase();
+
+      // remove accents, swap ñ for n, etc
+      const from = 'àáäâèéëêìíïîòóöôùúüûñç·/_,:;';
+      const to = 'aaaaeeeeiiiioooouuuunc------';
+      for (var i = 0, l = from.length; i < l; i++) {
+        str = str.replace(new RegExp(from.charAt(i), 'g'), to.charAt(i));
+      }
+
+      this.draft.url = str
+        .replace(/[^a-z0-9 -]/g, '') // remove invalid chars
+        .replace(/\s+/g, '-') // collapse whitespace and replace by -
+        .replace(/-+/g, '-'); // collapse dashes
+    },
+    wysiwyg: null,
+    initWysiwyg(el) {
+      // Get el
+      this.wysiwyg = el;
+      // Add CSS
+      this.wysiwyg.contentDocument.querySelector('head').innerHTML += `<style>
+          *, ::after, ::before {box-sizing: border-box;}
+          :root {tab-size: 4;}
+          html {line-height: 1.15;text-size-adjust: 100%;}
+          body {margin: 0px; padding: 1rem 0.5rem;}
+          body {font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';}
+        </style>`;
+      this.wysiwyg.contentDocument.body.innerHTML += this.draft.text;
+      // this.wysiwyg.contentDocument.body.addEventListener('click', () => {
+      //   delete this.errors.article_text;
+      // });
+      // Make editable
+      this.wysiwyg.contentDocument.designMode = 'on';
+    },
+    format: function (cmd, param) {
+      this.wysiwyg.contentDocument.execCommand(cmd, !1, param || null);
+    },
+    async save() {
+      if (this.submitting) {
+        return;
+      }
+      this.submitting = true;
+      // Make not editable
+      this.wysiwyg.contentDocument.designMode = 'off';
+      this.draft.text = this.wysiwyg.contentDocument.body.innerHTML;
+      try {
+        const response = await fetch('/api/articles/draft', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            article_title: this.draft.title,
+            article_subtitle: this.draft.subtitle,
+            article_text: this.draft.text,
+            article_url: this.draft.url
+          })
+        });
+        const responseBody = await response.json();
+        if (response.status !== 200) {
+          let message = responseBody.message || 'Validation error';
+          if (responseBody.errors && responseBody.errors.length) {
+            for (const validationError of responseBody.errors) {
+              this.errors[validationError.param] = validationError.msg;
+            }
+          }
+          throw new Error(message || 'Something went wrong. Please try again later');
+        }
+        this.changed = false;
+        window.location.href = '/admin';
+      } catch (error) {
+        this.errorMessage = error.message;
+        this.$store.notifications.add('error', error.message);
+      } finally {
+        // Make not editable
+        this.wysiwyg.contentDocument.designMode = 'on';
+        this.submitting = false;
+      }
+    }
+  };
+}

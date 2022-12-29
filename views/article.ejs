@@ -13,7 +13,7 @@
       <% } %>
     </div>
   </div>
-  <div class="prose text-justify dark:prose-invert lg:prose-xl"><%- article.article_text %></div>
+  <div class="prose max-w-none text-justify dark:prose-invert"><%- article.article_text %></div>
 </div>
 
 <!-- Comments section -->
@@ -25,7 +25,7 @@
       :id="$id('comment')"
       :disabled="submitting"
       @input="errorMessage = undefined"
-      class="w-full rounded-lg dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+      class="styled-input w-full"
       x-bind:class="errorMessage ? 'text-red-500 dark:text-red-300 border-red-500 dark:border-red-300' : ''"
       name="comment"
       rows="5"

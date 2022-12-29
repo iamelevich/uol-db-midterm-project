@@ -18,7 +18,7 @@
         </div>
       </div>
       <div
-        class="prose text-center dark:prose-invert lg:prose-xl"
+        class="prose max-w-none text-center dark:prose-invert lg:prose-xl"
         x-html="article.article_text.substring(0, article.article_text.indexOf('</p>') + 4)"
       ></div>
       <a
@@ -29,10 +29,7 @@
     </div>
   </template>
   <!-- Infinite scroll trigger -->
-  <div
-    class="flex h-64 w-full items-center justify-center"
-    id="infinite-scroll-trigger"
-  >
+  <div class="flex h-64 w-full items-center justify-center" id="infinite-scroll-trigger">
     <!-- prettier-ignore -->
     <%- include('./partials/loading'); %>
   </div>

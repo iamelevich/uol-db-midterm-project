@@ -50,7 +50,7 @@
       :id="$id('text-input')"
       @input="changed = true; errorMessage = undefined"
       :disabled="submitting"
-      class="mt-0 block w-full grow border-0 border-b-2 border-slate-200 px-0.5 focus:border-black focus:ring-0 dark:bg-slate-700 dark:focus:border-white"
+      class="styled-input mt-0 block w-full grow"
       placeholder="<%- label %>"
       x-model="value"
     />

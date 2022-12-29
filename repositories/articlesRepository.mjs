@@ -31,6 +31,14 @@ import logger from '../lib/logger.mjs';
  * @property {string|null} [tag_name]
  */
 
+/**
+ * @typedef {Object} NewArticleBody
+ * @property {string} article_title
+ * @property {string} article_subtitle
+ * @property {string} article_text
+ * @property {string} article_url
+ */
+
 const STATUSES = {
   PUBLISHED: 'Published',
   DRAFT: 'Draft',
@@ -189,6 +197,39 @@ class ArticlesRepository {
       article_id
     );
     return result.changes > 0;
+  }
+
+  /**
+   * Create new Article
+   * @param {NewArticleBody} articleBody
+   * @returns {Promise<boolean>}
+   */
+  async create(articleBody) {
+    const currentTime = new Date().valueOf();
+    const result = await this.#db.insert('articles', {
+      ...articleBody,
+      article_created_at: currentTime,
+      article_updated_at: currentTime,
+      article_status: STATUSES.DRAFT
+    });
+    logger.debug(
+      {
+        articleBody,
+        result
+      },
+      'Creating new article'
+    );
+    return result.changes > 0;
+  }
+
+  /**
+   * Check is given url unique in articles table
+   * @param {string} url
+   * @returns {Promise<boolean>} Return true if url is unique
+   */
+  async isUrlUnique(url) {
+    const response = await this.#db.get(`SELECT article_id FROM articles WHERE article_url = ?`, url);
+    return !response;
   }
 
   /**

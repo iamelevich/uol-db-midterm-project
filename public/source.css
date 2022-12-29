@@ -6,6 +6,10 @@
   .gradient-link {
     @apply hover:bg-gradient-to-r hover:from-cyan-500 hover:to-purple-500 hover:bg-clip-text hover:text-transparent hover:transition hover:delay-150 hover:duration-300 hover:ease-in-out dark:hover:from-cyan-400 dark:hover:to-purple-400;
   }
+
+  .styled-input {
+    @apply rounded-lg dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500;
+  }
 }
 
 [x-cloak] {

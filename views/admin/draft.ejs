@@ -1,0 +1,180 @@
+<h1 class="text-center text-2xl">Create new draft article</h1>
+<p class="text-center text-slate-500 dark:text-slate-300">There you can create new draft article.</p>
+<form @submit.prevent x-data="createDraftData()" class="mt-4">
+  <!-- Title -->
+  <div class="my-2">
+    <label :for="$id('title')" class="block text-gray-700 dark:text-slate-300"> Title</label>
+    <input
+      :disabled="submitting"
+      @input="updateSlug(); delete errors.article_title; delete errors.article_url;"
+      class="styled-input block w-full"
+      type="text"
+      :id="$id('title')"
+      x-model="draft.title"
+    />
+    <p x-show="errors.article_title" x-text="errors.article_title" class="text-red-500 dark:text-red-300"></p>
+  </div>
+
+  <!-- Slug -->
+  <div class="my-2">
+    <label :for="$id('slug')" class="block text-gray-700 dark:text-slate-300">Url</label>
+    <input
+      disabled
+      class="styled-input block w-full bg-gray-200 dark:bg-gray-500"
+      type="text"
+      :id="$id('subslugtitle')"
+      :value="draft.url"
+    />
+    <p x-show="errors.article_url" x-text="errors.article_url" class="text-red-500 dark:text-red-300"></p>
+  </div>
+
+  <!-- Subtitle -->
+  <div class="my-2">
+    <label :for="$id('subtitle')" class="block text-gray-700 dark:text-slate-300">Subtitle</label>
+    <input
+      @input="delete errors.article_subtitle;"
+      :disabled="submitting"
+      class="styled-input block w-full"
+      type="text"
+      :id="$id('subtitle')"
+      x-model="draft.subtitle"
+    />
+    <p
+      x-show="errors.article_subtitle"
+      x-text="errors.article_subtitle"
+      class="text-red-500 dark:text-red-300"
+    ></p>
+  </div>
+
+  <!-- Text. Pure WYSIWYG editor -->
+  <div class="mx-auto my-4 w-full max-w-6xl" x-init="initWysiwyg($refs.wysiwyg)">
+    <label :for="$id('text')" class="block text-gray-700 dark:text-slate-300">Text</label>
+    <div class="overflow-hidden rounded-md border border-gray-200">
+      <!-- WYSIWYG editor menu -->
+      <div class="v flex w-full border-b border-gray-200 text-xl">
+        <!-- Bold button -->
+        <button
+          class="h-10 w-10 border-r border-gray-200 outline-none hover:text-indigo-500 focus:outline-none active:bg-gray-50 dark:hover:text-indigo-300"
+          @click="format('bold')"
+        >
+          <!-- prettier-ignore -->
+          <%- include('../partials/icons/bold', { className: 'h-6 w-6 mx-auto' }); %>
+        </button>
+
+        <!-- Italic button -->
+        <button
+          class="h-10 w-10 border-r border-gray-200 outline-none hover:text-indigo-500 focus:outline-none active:bg-gray-50 dark:hover:text-indigo-300"
+          @click="format('italic')"
+        >
+          <!-- prettier-ignore -->
+          <%- include('../partials/icons/italic', { className: 'h-6 w-6 mx-auto' }); %>
+        </button>
+
+        <!-- Underline button -->
+        <button
+          class="mr-1 h-10 w-10 border-r border-gray-200 outline-none hover:text-indigo-500 focus:outline-none active:bg-gray-50 dark:hover:text-indigo-300"
+          @click="format('underline')"
+        >
+          <!-- prettier-ignore -->
+          <%- include('../partials/icons/underline', { className: 'h-6 w-6 mx-auto' }); %>
+        </button>
+
+        <!-- Paragraph button -->
+        <button
+          class="h-10 w-10 border-l border-r border-gray-200 outline-none hover:text-indigo-500 focus:outline-none active:bg-gray-50 dark:hover:text-indigo-300"
+          @click="format('formatBlock','P')"
+        >
+          <!-- prettier-ignore -->
+          <%- include('../partials/icons/paragraph', { className: 'h-6 w-6 mx-auto' }); %>
+        </button>
+
+        <!-- H1 button -->
+        <button
+          class="h-10 w-10 border-r border-gray-200 outline-none hover:text-indigo-500 focus:outline-none active:bg-gray-50 dark:hover:text-indigo-300"
+          @click="format('formatBlock','H1')"
+        >
+          <!-- prettier-ignore -->
+          <%- include('../partials/icons/heading-1', { className: 'h-6 w-6 mx-auto' }); %>
+        </button>
+
+        <!-- H2 button -->
+        <button
+          class="h-10 w-10 border-r border-gray-200 outline-none hover:text-indigo-500 focus:outline-none active:bg-gray-50 dark:hover:text-indigo-300"
+          @click="format('formatBlock','H2')"
+        >
+          <!-- prettier-ignore -->
+          <%- include('../partials/icons/heading-2', { className: 'h-6 w-6 mx-auto' }); %>
+        </button>
+
+        <!-- H3 button -->
+        <button
+          class="mr-1 h-10 w-10 border-r border-gray-200 outline-none hover:text-indigo-500 focus:outline-none active:bg-gray-50 dark:hover:text-indigo-300"
+          @click="format('formatBlock','H3')"
+        >
+          <!-- prettier-ignore -->
+          <%- include('../partials/icons/heading-3', { className: 'h-6 w-6 mx-auto' }); %>
+        </button>
+
+        <!-- Bulleted List button -->
+        <button
+          class="h-10 w-10 border-l border-r border-gray-200 outline-none hover:text-indigo-500 focus:outline-none active:bg-gray-50 dark:hover:text-indigo-300"
+          @click="format('insertUnorderedList')"
+        >
+          <!-- prettier-ignore -->
+          <%- include('../partials/icons/bulleted-list', { className: 'h-6 w-6 mx-auto' }); %>
+        </button>
+
+        <!-- Ordered List button -->
+        <button
+          class="mr-1 h-10 w-10 border-r border-gray-200 outline-none hover:text-indigo-500 focus:outline-none active:bg-gray-50 dark:hover:text-indigo-300"
+          @click="format('insertOrderedList')"
+        >
+          <!-- prettier-ignore -->
+          <%- include('../partials/icons/numbered-list', { className: 'h-6 w-6 mx-auto' }); %>
+        </button>
+
+        <!-- Align left button -->
+        <button
+          class="h-10 w-10 border-l border-r border-gray-200 outline-none hover:text-indigo-500 focus:outline-none active:bg-gray-50 dark:hover:text-indigo-300"
+          @click="format('justifyLeft')"
+        >
+          <!-- prettier-ignore -->
+          <%- include('../partials/icons/align-left', { className: 'h-6 w-6 mx-auto' }); %>
+        </button>
+
+        <!-- Align center button -->
+        <button
+          class="h-10 w-10 border-r border-gray-200 outline-none hover:text-indigo-500 focus:outline-none active:bg-gray-50 dark:hover:text-indigo-300"
+          @click="format('justifyCenter')"
+        >
+          <!-- prettier-ignore -->
+          <%- include('../partials/icons/align-center', { className: 'h-6 w-6 mx-auto' }); %>
+        </button>
+
+        <!-- Align right button -->
+        <button
+          class="h-10 w-10 border-r border-gray-200 outline-none hover:text-indigo-500 focus:outline-none active:bg-gray-50 dark:hover:text-indigo-300"
+          @click="format('justifyRight')"
+        >
+          <!-- prettier-ignore -->
+          <%- include('../partials/icons/align-right', { className: 'h-6 w-6 mx-auto' }); %>
+        </button>
+      </div>
+
+      <div class="w-full">
+        <!-- Editable box -->
+        <iframe x-ref="wysiwyg" class="h-96 w-full overflow-y-auto bg-white dark:bg-slate-300"></iframe>
+      </div>
+    </div>
+    <p x-show="errors.article_text" x-text="errors.article_text" class="text-red-500 dark:text-red-300"></p>
+  </div>
+
+  <button
+    @click="save()"
+    class="w-full rounded-lg bg-green-300 p-2 hover:bg-green-400 dark:bg-green-600 dark:hover:bg-green-500"
+  >
+    <span x-show="!submitting">Save article</span>
+    <!-- prettier-ignore -->
+    <%- include('../partials/icons/loader', { className: 'h-5 w-5 animate-spin', attributes: 'x-show="submitting"' }); %>
+  </button>
+</form>

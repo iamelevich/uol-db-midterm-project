@@ -1,4 +1,4 @@
-## Coursework Template
+## Coursework by Ilya Amelevich
 
 ### CM2040 Database Networks and the Web
 

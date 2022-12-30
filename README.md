@@ -7,6 +7,7 @@
   - [File structure](#file-structure)
   - [Extra tools used](#extra-tools-used)
   - [Extra libraries](#extra-libraries)
+  - [DB Schema](#db-schema)
   - [Submission requirements](#submission-requirements)
     - [Data requirements](#data-requirements)
     - [Code Style Requirements](#code-style-requirements)
@@ -90,6 +91,10 @@
 - `pino-http` - Logger for HTTP server, that add some extra info on each request
 - `promised-sqlite3` - wrapper for sqlite library that adds Promise support
 - [AlpineJS](https://alpinejs.dev/) - frontend js framework, that add a lot of cool features from big frameworks, but super lightweight and easy to use
+
+## DB Schema
+
+![DB Schema](./db-schema.svg)
 
 ## Submission requirements
 

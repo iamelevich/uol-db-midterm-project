@@ -5,7 +5,9 @@ import { param, body, validationResult } from 'express-validator';
 const router = express.Router();
 
 /**
- * @description returns all article comments
+ * API route to get all article comments
+ *
+ * param article_id - Article ID from DB
  */
 router.get('/api/comments/:article_id', param('article_id').isNumeric().not().isEmpty(), async (req, res) => {
   const errors = validationResult(req);
@@ -23,7 +25,9 @@ router.get('/api/comments/:article_id', param('article_id').isNumeric().not().is
 });
 
 /**
- * @description post a comment
+ * API route to post an article comment
+ *
+ * param article_id - Article ID from DB
  */
 router.post(
   '/api/comments/:article_id',

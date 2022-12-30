@@ -77,6 +77,7 @@ class ArticlesRepository {
   async getAll({ page = 1, pageSize = 10 } = {}) {
     const articlesRaw = await this.#db.all(
       this.#generateGetArticlesSql({
+        joinLikes: true,
         where: 'a.article_status != ?',
         order: 'a.article_updated_at DESC',
         page,
@@ -110,6 +111,7 @@ class ArticlesRepository {
       this.#generateGetArticlesSql({
         joinTags: true,
         joinLikes: true,
+        addIsLiked: true,
         where: 'a.article_status = ?',
         order: 'a.article_published_at DESC',
         page,
@@ -181,6 +183,7 @@ class ArticlesRepository {
       this.#generateGetArticlesSql({
         joinTags: true,
         joinLikes: true,
+        addIsLiked: true,
         where: 'a.article_url = ? AND a.article_status = ?'
       }),
       slug,
@@ -409,6 +412,7 @@ class ArticlesRepository {
   #generateGetArticlesSql({
     joinTags = false,
     joinLikes = false,
+    addIsLiked = false,
     page = undefined,
     pageSize = undefined,
     where = undefined,
@@ -444,19 +448,27 @@ class ArticlesRepository {
     if (joinLikes) {
       sql = `SELECT
         a.*,
-        COUNT(al.session_id) AS likes,
-        SUM(al.yourLike) isLiked
+        COUNT(al.session_id) AS likes${
+          addIsLiked
+            ? `,
+        SUM(al.yourLike) isLiked`
+            : ''
+        }
       FROM (${sql}) a
       LEFT JOIN (
         SELECT
           article_id,
-          session_id,
+          session_id${
+            addIsLiked
+              ? `,
           CASE
             WHEN session_id = ? THEN
               1
             ELSE
               0
-            END yourLike
+            END yourLike`
+              : ''
+          }
         FROM articleLikes
       ) al ON a.article_id = al.article_id
       GROUP BY a.article_id`;

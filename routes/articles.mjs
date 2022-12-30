@@ -5,7 +5,10 @@ import { query, param, body, validationResult } from 'express-validator';
 const router = express.Router();
 
 /**
- * @description returns all articles
+ * API route to get all articles
+ *
+ * query page - current page. Optional
+ * query pageSize - items on page. Optional
  */
 router.get(
   '/api/articles',
@@ -33,7 +36,10 @@ router.get(
 );
 
 /**
- * @description returns published articles
+ * API route to get published articles
+ *
+ * query page - current page. Optional
+ * query pageSize - items on page. Optional
  */
 router.get(
   '/api/articles/published',
@@ -61,7 +67,9 @@ router.get(
 );
 
 /**
- * @description delete article
+ * API route to delete article
+ *
+ * param article_id - Article ID from DB
  */
 router.delete(
   '/api/articles/:article_id',
@@ -85,7 +93,13 @@ router.delete(
 );
 
 /**
- * @description delete article
+ * API route to create draft article
+ *
+ * body article_title - Article title
+ * body article_subtitle - Article subtitle
+ * body article_text - Article text
+ * body article_url - Article URL
+ * body tags - Article tags array
  */
 router.post(
   '/api/articles/draft',
@@ -137,7 +151,15 @@ router.post(
 );
 
 /**
- * @description update article
+ * API route to update article
+ *
+ * param article_id - Article ID from DB
+ *
+ * body article_title - Article title
+ * body article_subtitle - Article subtitle
+ * body article_text - Article text
+ * body article_url - Article URL
+ * body tags - Article tags array
  */
 router.put(
   '/api/articles/:article_id',
@@ -203,7 +225,9 @@ router.put(
 );
 
 /**
- * @description publish article
+ * API route to publish article
+ *
+ * param article_id - Article ID from DB
  */
 router.put(
   '/api/articles/:article_id/publish',
@@ -227,7 +251,9 @@ router.put(
 );
 
 /**
- * @description unpublish article
+ * API route to unpublish article
+ *
+ * param article_id - Article ID from DB
  */
 router.put(
   '/api/articles/:article_id/unpublish',
@@ -251,7 +277,9 @@ router.put(
 );
 
 /**
- * @description like article
+ * API route to like article
+ *
+ * param article_id - Article ID from DB
  */
 router.put(
   '/api/articles/:article_id/like',
@@ -280,7 +308,9 @@ router.put(
 );
 
 /**
- * @description unlike article
+ * API route to unlike article
+ *
+ * param article_id - Article ID from DB
  */
 router.put(
   '/api/articles/:article_id/unlike',

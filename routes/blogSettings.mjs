@@ -5,7 +5,7 @@ import { param, body, validationResult } from 'express-validator';
 const router = express.Router();
 
 /**
- * @description returns all blog settings
+ * API route to get all blog settings
  */
 router.get('/api/blog-settings', async (req, res) => {
   try {
@@ -19,8 +19,9 @@ router.get('/api/blog-settings', async (req, res) => {
 });
 
 /**
- * @description returns one setting
- * @param {string} name - setting name in database
+ * API route to get blog setting
+ *
+ * param name - Blog setting name
  */
 router.get('/api/blog-setting/:name', param('name').not().isEmpty(), async (req, res) => {
   const errors = validationResult(req);
@@ -36,8 +37,11 @@ router.get('/api/blog-setting/:name', param('name').not().isEmpty(), async (req,
 });
 
 /**
- * @description updates setting
- * @param {string} name - setting name in database
+ * API route to update blog setting
+ *
+ * param name - Blog setting name
+ *
+ * body setting_value - New blog setting value
  */
 router.put(
   '/api/blog-setting/:name',

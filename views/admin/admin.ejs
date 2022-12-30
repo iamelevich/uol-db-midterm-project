@@ -195,10 +195,18 @@
         <tr class="odd:bg-gray-100 dark:odd:bg-gray-500">
           <td class="px-1" x-text="article.article_id"></td>
           <td class="px-1 text-sm">
-            <p><strong>Title: </strong><span x-text="article.article_title"></span></p>
+            <p>
+              <strong>Title: </strong
+              ><a
+                class="gradient-link"
+                :href="`/article/${article.article_url}`"
+                x-text="article.article_title"
+              ></a>
+            </p>
             <p><strong>Subtitle: </strong><span x-text="article.article_subtitle"></span></p>
             <p><strong>URL: </strong><span x-text="article.article_url"></span></p>
             <p><strong>Status: </strong><span x-text="article.article_status"></span></p>
+            <p><strong>Likes: </strong><span x-text="article.likes"></span></p>
           </td>
           <td class="w-64 px-1 text-sm">
             <p>
@@ -223,7 +231,7 @@
                 class="absolute right-0 top-1/2 translate-x-full -translate-y-1/2 rounded-md bg-gray-800 px-1 text-sm text-gray-100 opacity-0 transition-opacity group-hover:opacity-100"
                 >Edit</span
               >
-              <a :href="'/admin/edit/'+article.article_id">
+              <a class="dark:fill-white" :href="'/admin/edit/'+article.article_id">
                 <!-- prettier-ignore -->
                 <%- include('../partials/icons/edit', { className: 'h-6 w-6' }); %>
               </a>

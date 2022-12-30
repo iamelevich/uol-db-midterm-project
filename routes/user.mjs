@@ -6,7 +6,8 @@ import { param, body, validationResult } from 'express-validator';
 const router = express.Router();
 
 /**
- * @description home page
+ * Home page
+ * Renders home.ejs file
  */
 router.get('/', async (req, res) => {
   const settings = await blogSettingsRepository.getAllMap();
@@ -14,7 +15,10 @@ router.get('/', async (req, res) => {
 });
 
 /**
- * @description article page
+ * Article page
+ * Renders article.ejs file
+ *
+ * param slug - Article URL
  */
 router.get('/article/:slug', param('slug').not().isEmpty(), async (req, res) => {
   // Update article views. Not use session here to make it super simple

@@ -6,7 +6,8 @@ import tagsRepository from '../repositories/tagsRepository.mjs';
 const router = express.Router();
 
 /**
- * @description admin page
+ * Admin page
+ * Renders admin/admin.ejs file
  */
 router.get('/admin', async (req, res) => {
   const settings = await blogSettingsRepository.getAllMap();
@@ -14,7 +15,8 @@ router.get('/admin', async (req, res) => {
 });
 
 /**
- * @description create draft page
+ * Create draft article page
+ * Renders admin/draft.ejs file
  */
 router.get('/admin/draft', async (req, res) => {
   const settings = await blogSettingsRepository.getAllMap();
@@ -23,7 +25,10 @@ router.get('/admin/draft', async (req, res) => {
 });
 
 /**
- * @description create draft page
+ * Edit article page
+ * Renders admin/draft.ejs file
+ *
+ * param article_id - Article ID from DB
  */
 router.get('/admin/edit/:article_id', async (req, res) => {
   const article = await articlesRepository.getByIdForEdit(req.params.article_id);
@@ -36,7 +41,8 @@ router.get('/admin/edit/:article_id', async (req, res) => {
 });
 
 /**
- * @description setting page
+ * Settings page
+ * Renders admin/settings.ejs file
  */
 router.get('/admin/settings', async (req, res) => {
   const settings = await blogSettingsRepository.getAllMap();

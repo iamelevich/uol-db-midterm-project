@@ -10,7 +10,7 @@
     "build-db": "cat db_schema.sql | sqlite3 database.db #build anew database from the sql file",
     "clean-db": "rm database.db #remove the old database",
     "prepare": "husky install",
-    "start": "node index.js",
+    "start": "node index.mjs",
     "start:dev": "nodemon livereload.mjs -e ejs,css,mjs,js,json | pino-pretty",
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch:css": "tailwindcss -i ./public/source.css -o ./public/dist.css --watch"

@@ -11,7 +11,7 @@
     <div
       x-data="{
         likes: <%- article.likes %>,
-        isLiked: !!<%- article.isLiked %>,
+        isLiked: !!<%- article.isLiked || 0 %>,
         isLikingRunning: false,
         async likeOrUnlike(article_id) {
           // Prevent fetching more than once at the same time

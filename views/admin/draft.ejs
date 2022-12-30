@@ -3,7 +3,7 @@
 <form
   @submit.prevent
   x-data="createDraftData({
-    article_id: <%- locals.article ? locals.article.article_id : '' %>,
+    article_id: <%- locals.article ? locals.article.article_id : 'undefined' %>,
     article_title: '<%- locals.article ? locals.article.article_title : '' %>',
     article_subtitle: '<%- locals.article ? locals.article.article_subtitle : '' %>',
     article_url: '<%- locals.article ? locals.article.article_url : '' %>',

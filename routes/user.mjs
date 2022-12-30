@@ -17,8 +17,14 @@ router.get('/', async (req, res) => {
  * @description article page
  */
 router.get('/article/:slug', param('slug').not().isEmpty(), async (req, res) => {
+  // Update article views. Not use session here to make it super simple
+  await articlesRepository.viewBySlug(req.params.slug);
+  // Get article data
+  const article = await articlesRepository.getBySlug(req.params.slug, req.sessionID);
+  if (!article) {
+    return res.status(404).send();
+  }
   const settings = await blogSettingsRepository.getAllMap();
-  const article = await articlesRepository.getBySlug(req.params.slug);
   res.render('article', { title: article.article_title, settings, article });
 });
 

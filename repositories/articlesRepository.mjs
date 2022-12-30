@@ -13,7 +13,10 @@ import tagsRepository from './tagsRepository.mjs';
  * @property {number} article_updated_at
  * @property {number} article_published_at
  * @property {number} article_deleted_at
+ * @property {number} article_views
  * @property {string} article_status
+ * @property {number} likes
+ * @property {0|1}    isLiked
  * @property {string[]} tags
  */
 
@@ -28,7 +31,10 @@ import tagsRepository from './tagsRepository.mjs';
  * @property {number} article_updated_at
  * @property {number} article_published_at
  * @property {number} article_deleted_at
+ * @property {number} article_views
  * @property {string} article_status
+ * @property {number} likes
+ * @property {0|1}    isLiked
  * @property {string|null} [tag_name]
  */
 
@@ -71,7 +77,6 @@ class ArticlesRepository {
   async getAll({ page = 1, pageSize = 10 } = {}) {
     const articlesRaw = await this.#db.all(
       this.#generateGetArticlesSql({
-        joinTags: true,
         where: 'a.article_status != ?',
         order: 'a.article_updated_at DESC',
         page,
@@ -94,21 +99,24 @@ class ArticlesRepository {
 
   /**
    * @description Returns all Article entities from DB
+   * @param {string} session_id - SessionID from req.sessionID
    * @param {Object} config
    * @param {number} config.page - page number, start from 1
    * @param {number} config.pageSize - how many items should be on page
    * @returns {Promise<{ articles: Article[], count: number }>}
    */
-  async getPublished({ page = 1, pageSize = 10 } = {}) {
+  async getPublished(session_id, { page = 1, pageSize = 10 } = {}) {
     const articlesRaw = await this.#db.all(
       this.#generateGetArticlesSql({
         joinTags: true,
+        joinLikes: true,
         where: 'a.article_status = ?',
         order: 'a.article_published_at DESC',
         page,
         pageSize
       }),
-      STATUSES.PUBLISHED
+      STATUSES.PUBLISHED,
+      session_id
     );
 
     const count = await this.#db.get(
@@ -163,31 +171,21 @@ class ArticlesRepository {
   }
 
   /**
-   *
+   * Get Article by slug
    * @param {string} slug - Url of the article
+   * @param {string} session_id - SessionID from req.sessionID
    * @returns {Promise<Article> | undefined} If article not found - return undefined, otherwise article object
    */
-  async getBySlug(slug) {
+  async getBySlug(slug, session_id) {
     const articleRaw = await this.#db.get(
-      `SELECT
-      a.article_id,
-      a.article_title,
-      a.article_subtitle,
-      a.article_text,
-      a.article_url,
-      a.article_created_at,
-      a.article_updated_at,
-      a.article_published_at,
-      a.article_deleted_at,
-      a.article_status,
-      group_concat(t.tag_name) AS tags
-    FROM articles a
-    LEFT JOIN articleToTag  at ON a.article_id = at.article_id
-    LEFT JOIN tags t ON at.tag_id = t.tag_id
-    WHERE a.article_url = ? AND a.article_status = ?
-    GROUP BY a.article_id;`,
+      this.#generateGetArticlesSql({
+        joinTags: true,
+        joinLikes: true,
+        where: 'a.article_url = ? AND a.article_status = ?'
+      }),
       slug,
-      STATUSES.PUBLISHED
+      STATUSES.PUBLISHED,
+      session_id
     );
     logger.debug(
       {
@@ -196,7 +194,8 @@ class ArticlesRepository {
       },
       'Getting article by slug'
     );
-    return articleRaw ? this.#transformRawToObject(articleRaw) : undefined;
+    const article = articleRaw ? this.#transformRawToObject(articleRaw) : undefined;
+    return article;
   }
 
   /**
@@ -244,6 +243,61 @@ class ArticlesRepository {
       null,
       STATUSES.DRAFT,
       article_id
+    );
+    return result.changes > 0;
+  }
+
+  /**
+   * Like article
+   * @param {number} article_id - Article ID
+   * @param {string} session_id - Session ID from req.sessionID
+   * @returns {Promise<boolean>}
+   */
+  async like(article_id, session_id) {
+    const result = await this.#db.replace('articleLikes', {
+      article_id,
+      session_id
+    });
+    return result.changes > 0;
+  }
+
+  /**
+   * Unlike article
+   * @param {number} article_id - Article ID
+   * @param {string} session_id - Session ID from req.sessionID
+   * @returns {Promise<boolean>}
+   */
+  async unlike(article_id, session_id) {
+    const result = await this.#db.run(
+      'DELETE FROM articleLikes WHERE article_id = ? AND session_id = ?',
+      article_id,
+      session_id
+    );
+    return result.changes > 0;
+  }
+
+  /**
+   * Update article views
+   * @param {number} article_id - Article ID
+   * @returns {Promise<boolean>}
+   */
+  async view(article_id) {
+    const result = await this.#db.run(
+      'UPDATE articles SET article_views = article_views + 1 WHERE article_id = ?',
+      article_id
+    );
+    return result.changes > 0;
+  }
+
+  /**
+   * Update article views by slug
+   * @param {string} slug - Url of the article
+   * @returns {Promise<boolean>}
+   */
+  async viewBySlug(slug) {
+    const result = await this.#db.run(
+      'UPDATE articles SET article_views = article_views + 1 WHERE article_url = ?',
+      slug
     );
     return result.changes > 0;
   }
@@ -354,6 +408,7 @@ class ArticlesRepository {
    */
   #generateGetArticlesSql({
     joinTags = false,
+    joinLikes = false,
     page = undefined,
     pageSize = undefined,
     where = undefined,
@@ -369,6 +424,7 @@ class ArticlesRepository {
       a.article_updated_at,
       a.article_published_at,
       a.article_deleted_at,
+      a.article_views,
       a.article_status${
         joinTags
           ? `,
@@ -378,15 +434,49 @@ class ArticlesRepository {
     FROM articles a
     ${
       joinTags
-        ? `LEFT JOIN articleToTag  at ON a.article_id = at.article_id
+        ? `LEFT JOIN articleToTag at ON a.article_id = at.article_id
     LEFT JOIN tags t ON at.tag_id = t.tag_id`
         : ''
     }
     ${where ? `WHERE ${where}` : ''}
-    GROUP BY a.article_id
-    ${order ? `ORDER BY ${order}` : ''}
-    ${pageSize ? `LIMIT ${pageSize}` : ''}
-    ${page && pageSize && pageSize > 0 && page > 0 ? `OFFSET ${(page - 1) * pageSize}` : ''};`;
+    GROUP BY a.article_id`;
+
+    if (joinLikes) {
+      sql = `SELECT
+        a.*,
+        COUNT(al.session_id) AS likes,
+        SUM(al.yourLike) isLiked
+      FROM (${sql}) a
+      LEFT JOIN (
+        SELECT
+          article_id,
+          session_id,
+          CASE
+            WHEN session_id = ? THEN
+              1
+            ELSE
+              0
+            END yourLike
+        FROM articleLikes
+      ) al ON a.article_id = al.article_id
+      GROUP BY a.article_id`;
+    }
+
+    // Add ORDER BY
+    if (order) {
+      sql += `\nORDER BY ${order}`;
+    }
+
+    // Add LIMIT
+    if (pageSize) {
+      sql += `\nLIMIT ${pageSize}`;
+    }
+
+    // ADD OFFSET
+    if (page && pageSize && pageSize > 0 && page > 0) {
+      sql += `\nOFFSET ${(page - 1) * pageSize}`;
+    }
+
     logger.debug(sql, 'Articles SQL query');
     return sql;
   }

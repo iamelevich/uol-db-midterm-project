@@ -46,7 +46,7 @@ router.get(
     }
     try {
       return res.json(
-        await articlesRepository.getPublished({
+        await articlesRepository.getPublished(req.sessionID, {
           page: req.query.page,
           pageSize: req.query.pageSize
         })
@@ -243,6 +243,64 @@ router.put(
       });
     } catch (err) {
       req.log.error(err, `Article(ID: ${req.params.article_id}) unpublishing error`);
+      return res.status(500).json({
+        message: 'Something went wrong'
+      });
+    }
+  }
+);
+
+/**
+ * @description like article
+ */
+router.put(
+  '/api/articles/:article_id/like',
+  param('article_id').isNumeric().not().isEmpty(),
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    try {
+      return res.json({
+        success: await articlesRepository.like(req.params.article_id, req.sessionID)
+      });
+    } catch (err) {
+      req.log.error(
+        {
+          err
+        },
+        `Article like error`
+      );
+      return res.status(500).json({
+        message: 'Something went wrong'
+      });
+    }
+  }
+);
+
+/**
+ * @description unlike article
+ */
+router.put(
+  '/api/articles/:article_id/unlike',
+  param('article_id').isNumeric().not().isEmpty(),
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    try {
+      return res.json({
+        success: await articlesRepository.unlike(req.params.article_id, req.sessionID)
+      });
+    } catch (err) {
+      req.log.error(
+        {
+          err
+        },
+        `Article unlike error`
+      );
       return res.status(500).json({
         message: 'Something went wrong'
       });

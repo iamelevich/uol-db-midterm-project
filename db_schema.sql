@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS articles (
     article_updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     article_published_at TIMESTAMP NULL DEFAULT NULL,
     article_deleted_at TIMESTAMP NULL DEFAULT NULL,
+    article_views INTEGER DEFAULT 0,
     article_status TEXT CHECK( article_status IN ("Published", "Draft", "Deleted") ) NOT NULL DEFAULT 'Draft'
 );
 CREATE UNIQUE INDEX idx_articles_article_url ON articles (article_url);
@@ -32,6 +33,13 @@ CREATE TABLE IF NOT EXISTS articleComments (
     comment_text TEXT NOT NULL,
     comment_creation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     article_id INT,
+    FOREIGN KEY (article_id) REFERENCES articles(article_id)
+);
+
+CREATE TABLE IF NOT EXISTS articleLikes (
+    session_id TEXT,
+    article_id INT,
+    PRIMARY KEY (article_id, session_id)
     FOREIGN KEY (article_id) REFERENCES articles(article_id)
 );
 

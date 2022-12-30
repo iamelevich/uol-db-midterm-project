@@ -7,10 +7,71 @@
       </h1>
       <h2 class="text-center text-lg" x-text="article.article_subtitle"></h2>
       <div class="flex py-2">
+        <!-- Published -->
         <div class="flex-none text-sm text-slate-500 dark:text-slate-300">
           Published: <span x-text="(new Date(article.article_published_at)).toLocaleString()"></span>
         </div>
+        <!-- Likes -->
+        <div
+          x-data="{
+          likes: article.likes,
+          isLiked: !!article.isLiked,
+          isLikingRunning: false,
+          async likeOrUnlike(article_id) {
+            // Prevent fetching more than once at the same time
+            if (this.isLikingRunning) {
+              return;
+            }
+            this.isLikingRunning = true;
+
+            const response = await fetch(`/api/articles/${article_id}/${this.isLiked ? 'unlike' : 'like'}`, {
+              method: 'PUT'
+            });
+            const responseBody = await response.json();
+            if (response.status !== 200) {
+              let message = responseBody.message;
+              if (responseBody.errors && responseBody.errors.length) {
+                message = responseBody.errors
+                  .map((responseError) => {
+                    return responseError.msg;
+                  })
+                  .join('. ');
+              }
+              // Add notification
+              this.$store.notifications.add('error', `Article ${article_id} ${this.isLiked ? 'unlike' : 'like'} error: ${message}`);
+              return;
+            }
+
+            if (responseBody.success) {
+              this.$store.notifications.add('success', `Article ${article_id} was successfully ${this.isLiked ? 'unliked' : 'liked'}`);
+              this.likes += this.isLiked ? -1 : 1;
+              this.isLiked = !this.isLiked;
+            }
+
+            // Stop loading
+            this.isLikingRunning = false;
+          }
+        }"
+          @click="likeOrUnlike(article.article_id)"
+          class="group ml-2 flex flex-none cursor-pointer items-center fill-slate-500 text-sm text-slate-500 dark:fill-slate-300 dark:text-slate-300"
+        >
+          <!-- prettier-ignore -->
+          <%- include('./partials/icons/heart', { className: 'w-4 h-4', attributes: ':class="isLiked ? `hidden group-hover:block` : `group-hover:hidden`"' }); %>
+          <!-- prettier-ignore -->
+          <%- include('./partials/icons/heart-fill', { className: 'w-4 h-4', attributes: ':class="isLiked ? `group-hover:hidden` : `hidden group-hover:block`"' }); %>
+          <span class="ml-1" x-text="likes"></span>
+        </div>
+        <!-- Views -->
+        <div
+          class="ml-2 flex flex-none items-center fill-slate-500 text-sm text-slate-500 dark:fill-slate-300 dark:text-slate-300"
+        >
+          <!-- prettier-ignore -->
+          <%- include('./partials/icons/eye', { className: 'w-4 h-4' }); %>
+          <span class="ml-1" x-text="article.article_views"></span>
+        </div>
+        <!-- Divider -->
         <span class="grow"></span>
+        <!-- Tags -->
         <div class="flex-none text-xs">
           <template x-for="tag in article.tags">
             <span class="mx-0.5 rounded-md bg-slate-300 py-0.5 px-1 dark:bg-slate-500" x-text="tag"></span>

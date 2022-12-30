@@ -2,6 +2,7 @@ import express from 'express';
 import expressLayouts from 'express-ejs-layouts';
 import { pinoHttp } from 'pino-http';
 import bodyParser from 'body-parser';
+import session from 'express-session';
 import articlesRouter from './routes/articles.mjs';
 import blogSettingsRouter from './routes/blogSettings.mjs';
 import commentsRouter from './routes/comments.mjs';
@@ -12,6 +13,13 @@ const app = express();
 
 // Use Pino as Express logger
 app.use(pinoHttp());
+
+app.use(
+  session({
+    secret: process.env.SECRET || 'my-super-secret',
+    cookie: { maxAge: 60000 }
+  })
+);
 
 // Serve static files
 app.use(express.static('public'));
